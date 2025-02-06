@@ -9285,6 +9285,29 @@ public class PhasedJvmDiagnosticLightTreeTestGenerated extends AbstractPhasedJvm
     }
 
     @Nested
+    @TestMetadata("compiler/testData/diagnostics/tests/crvFull")
+    @TestDataPath("$PROJECT_ROOT")
+    public class CrvFull {
+      @Test
+      @TestMetadata("anonObjects.kt")
+      public void testAnonObjects() {
+        runTest("compiler/testData/diagnostics/tests/crvFull/anonObjects.kt");
+      }
+
+      @Test
+      @TestMetadata("basic.kt")
+      public void testBasic() {
+        runTest("compiler/testData/diagnostics/tests/crvFull/basic.kt");
+      }
+
+      @Test
+      @TestMetadata("nestedClasses.kt")
+      public void testNestedClasses() {
+        runTest("compiler/testData/diagnostics/tests/crvFull/nestedClasses.kt");
+      }
+    }
+
+    @Nested
     @TestMetadata("compiler/testData/diagnostics/tests/cyclicHierarchy")
     @TestDataPath("$PROJECT_ROOT")
     public class CyclicHierarchy {
