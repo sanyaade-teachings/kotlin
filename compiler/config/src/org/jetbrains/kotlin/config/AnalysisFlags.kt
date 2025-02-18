@@ -91,6 +91,8 @@ object AnalysisFlags {
 
     @JvmStatic
     val returnValueCheckerMode by AnalysisFlag.Delegates.ReturnValueCheckerDisabledByDefault
+
+    val hierarchicalMultiplatformCompilation by AnalysisFlag.Delegates.Boolean(defaultValue = false)
 }
 
 @Deprecated(
