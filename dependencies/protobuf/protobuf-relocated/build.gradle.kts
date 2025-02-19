@@ -15,7 +15,6 @@ val baseProtobuf by configurations.creating
 val baseProtobufSources by configurations.creating
 
 val protobufVersion: String by rootProject.extra
-val protobufJarPrefix = "protobuf-$protobufVersion"
 
 val renamedSources = "$buildDir/renamedSrc/"
 val outputJarsPath = "$buildDir/libs"
