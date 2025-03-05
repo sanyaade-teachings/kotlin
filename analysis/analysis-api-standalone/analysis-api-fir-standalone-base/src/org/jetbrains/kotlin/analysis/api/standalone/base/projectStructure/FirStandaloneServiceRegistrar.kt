@@ -10,6 +10,7 @@ import com.intellij.mock.MockProject
 import com.intellij.openapi.Disposable
 import com.intellij.psi.PsiElementFinder
 import com.intellij.psi.impl.PsiElementFinderImpl
+import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaImplementationDetail
 import org.jetbrains.kotlin.asJava.finder.JavaElementFinder
 
@@ -30,6 +31,7 @@ object FirStandaloneServiceRegistrar : AnalysisApiSimpleServiceRegistrar() {
         PluginStructureProvider.registerProjectListeners(project, PLUGIN_RELATIVE_PATH)
     }
 
+    @OptIn(KaExperimentalApi::class)
     @Suppress("TestOnlyProblems")
     override fun registerProjectModelServices(project: MockProject, disposable: Disposable) {
         with(PsiElementFinder.EP.getPoint(project)) {

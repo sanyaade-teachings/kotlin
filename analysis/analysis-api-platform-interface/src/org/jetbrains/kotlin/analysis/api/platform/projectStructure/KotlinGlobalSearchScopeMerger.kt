@@ -8,15 +8,13 @@ package org.jetbrains.kotlin.analysis.api.platform.projectStructure
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.kotlin.analysis.api.platform.KotlinPlatformComponent
+import org.jetbrains.kotlin.analysis.api.platform.KaEngineService
 
 /**
- * Merges [GlobalSearchScope]s according to platform-specific strategies with the goal of creating an optimized combined scope. If possible,
- * the merger should especially try to merge scopes which can be the basis of [KaModule.contentScope][org.jetbrains.kotlin.analysis.api.projectStructure.KaModule.contentScope]s.
- *
- * If there are no good scope merging strategies, [KotlinSimpleGlobalSearchScopeMerger] should be registered by the platform.
+ * Merges [GlobalSearchScope]s according to registered [KotlinGlobalSearchScopeMergeStrategy] with the goal
+ * of creating an optimized and flattened combined scope.
  */
-public interface KotlinGlobalSearchScopeMerger : KotlinPlatformComponent {
+public interface KotlinGlobalSearchScopeMerger : KaEngineService {
     /**
      * Creates a merged [GlobalSearchScope] which represents a *union* of all [scopes].
      */
