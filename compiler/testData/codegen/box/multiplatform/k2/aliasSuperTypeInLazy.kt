@@ -1,30 +1,21 @@
 // LANGUAGE: +MultiPlatformProjects
-// MODULE: dep
-// FILE: dep.kt
 
-open class Base1() {
-    val prop = "O"
-    fun foo() = "K"
+// MODULE: lib-common
+expect fun foo()
+
+// MODULE: lib-platform()()(lib-common)
+actual fun foo() {}
+fun bar() {}
+
+// MODULE: app-common(lib-common)
+fun test_common() {
+    foo()
 }
-open class Base2 : Base1()
 
-// MODULE: lib-common(dep)
-// FILE: lib-common.kt
-
-open expect class BaseAlias() : Base1
-
-open class Child: BaseAlias()
-
-// MODULE: lib(dep)()(lib-common)
-// FILE: lib.kt
-
-actual typealias BaseAlias = Base2
-
-// MODULE: main(lib, dep)
-// FILE: main.kt
-
-class InMain : Child()
-
-fun box() : String {
-    return InMain().prop + InMain().foo()
+// MODULE: app-platform(lib-platform)()(app-common)
+fun test_platform() {
+    foo()
+    bar()
 }
+
+fun box() = "OK"
