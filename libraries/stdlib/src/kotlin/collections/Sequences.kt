@@ -46,15 +46,15 @@ public fun <T> sequenceOf(vararg elements: T): Sequence<T> = elements.asSequence
 @SinceKotlin("2.1")
 public fun <T> sequenceOf(element: T): Sequence<T> = Sequence {
     object : Iterator<T> {
-        var hasNext: Boolean = true
+        private var _hasNext: Boolean = true
 
         override fun next(): T {
-            if (!hasNext) throw NoSuchElementException()
-            hasNext = false
+            if (!_hasNext) throw NoSuchElementException()
+            _hasNext = false
             return element
         }
 
-        override fun hasNext(): Boolean = hasNext
+        override fun hasNext(): Boolean = _hasNext
     }
 }
 
