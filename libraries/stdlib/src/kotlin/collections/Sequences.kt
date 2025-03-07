@@ -8,6 +8,7 @@
 
 package kotlin.sequences
 
+import kotlin.internal.LowPriorityInOverloadResolution
 import kotlin.random.Random
 
 /**
@@ -44,6 +45,7 @@ public fun <T> sequenceOf(vararg elements: T): Sequence<T> = elements.asSequence
  * @sample samples.collections.Sequences.Building.sequenceOfSingleValue
  */
 @SinceKotlin("2.1")
+@LowPriorityInOverloadResolution
 public fun <T> sequenceOf(element: T): Sequence<T> = Sequence {
     object : Iterator<T> {
         private var _hasNext: Boolean = true
