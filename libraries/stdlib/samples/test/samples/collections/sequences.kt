@@ -62,8 +62,8 @@ class Sequences {
         @Sample
         fun sequenceOfSingleValue() {
             val sequence = sequenceOf("single")
-            sequence.forEach(::println)
             assertPrints(sequence.count(), "1")
+            assertPrints(sequence.first(), "single")
         }
 
         @Sample
