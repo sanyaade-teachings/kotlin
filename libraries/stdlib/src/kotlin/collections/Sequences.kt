@@ -42,6 +42,7 @@ public fun <T> sequenceOf(vararg elements: T): Sequence<T> = elements.asSequence
  * @param element the single element to be contained in the resulting sequence.
  * @return a sequence containing only the specified [element].
  */
+@SinceKotlin("2.1")
 public fun <T> sequenceOf(element: T): Sequence<T> = Sequence {
     object : Iterator<T> {
         var hasNext: Boolean = true
