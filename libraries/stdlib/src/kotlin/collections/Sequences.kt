@@ -37,6 +37,26 @@ public fun <T> Iterator<T>.asSequence(): Sequence<T> = Sequence { this }.constra
 public fun <T> sequenceOf(vararg elements: T): Sequence<T> = elements.asSequence()
 
 /**
+ * Creates a [Sequence] that contains a single given element.
+ *
+ * @param element the single element to be contained in the resulting sequence.
+ * @return a sequence containing only the specified [element].
+ */
+public fun <T> sequenceOf(element: T): Sequence<T> = Sequence {
+    object : Iterator<T> {
+        var hasNext: Boolean = true
+
+        override fun next(): T {
+            if (!hasNext) throw NoSuchElementException()
+            hasNext = false
+            return element
+        }
+
+        override fun hasNext(): Boolean = hasNext
+    }
+}
+
+/**
  * Returns an empty sequence.
  */
 public fun <T> emptySequence(): Sequence<T> = EmptySequence
