@@ -759,6 +759,61 @@ public class SequenceTest {
         assertEquals(listOf(1, 2, 1, 3, 2, 3), sequenceOf(1, 2, 1, 3, 2, 3).toList())
     }
 
+    @Test fun sequenceOfWithSingleElementCreatesSequenceWithOnlyThatElement() {
+        val sequence = sequenceOf(42)
+
+        assertEquals(listOf(42), sequence.toList())
+        assertEquals(1, sequence.count())
+    }
+
+    @Test fun sequenceOfWithSingleElementBehaviorAfterConsumption() {
+        val sequence = sequenceOf("test")
+
+        val iterator = sequence.iterator()
+        assertTrue(iterator.hasNext())
+        assertEquals("test", iterator.next())
+        assertFalse(iterator.hasNext())
+        assertEquals(1, sequence.count())
+        assertEquals("test", sequence.first())
+    }
+
+    @Test fun sequenceOfWithSingleElementPreservesNullValue() {
+        val sequence = sequenceOf<String?>(null)
+
+        assertEquals(listOf(null), sequence.toList())
+        assertNull(sequence.first())
+    }
+
+    @Test fun sequenceOfWithSingleElementWorksWithDifferentTypes() {
+        assertEquals(listOf("string"), sequenceOf("string").toList())
+        assertEquals(listOf(42.5), sequenceOf(42.5).toList())
+        assertEquals(listOf(true), sequenceOf(true).toList())
+
+        data class Person(val name: String)
+
+        val person = Person("John")
+        assertEquals(listOf(person), sequenceOf(person).toList())
+    }
+
+    @Test fun sequenceOfCanBeUsedWithMethodReferences() {
+        val strings = listOf("a", "b", "c")
+
+        val sequences = strings.map(::sequenceOf)
+
+        sequences.forEachIndexed { index, sequence ->
+            assertEquals(listOf(strings[index]), sequence.toList())
+        }
+    }
+
+    @Test fun sequenceOfHandlesEdgeCasesProperly() {
+        assertEquals(listOf(""), sequenceOf("").toList())
+
+        val largeNumber = Int.MAX_VALUE
+        assertEquals(listOf(largeNumber), sequenceOf(largeNumber).toList())
+
+        assertEquals(listOf('a'), sequenceOf('a').toList())
+    }
+
     /*
     test fun pairIterator() {
         val pairStr = (fibonacci() zip fibonacci().map { i -> i*2 }).joinToString(limit = 10)
