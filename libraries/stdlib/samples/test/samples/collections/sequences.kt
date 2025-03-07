@@ -64,6 +64,7 @@ class Sequences {
             val sequence = sequenceOf("single")
             assertPrints(sequence.count(), "1")
             assertPrints(sequence.first(), "single")
+            assertPrints(sequence.toList(), "[single]")
         }
 
         @Sample
