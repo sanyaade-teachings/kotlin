@@ -156,6 +156,7 @@ interface AbiFilterSetSpec {
      * For Kotlin top-level function or properties in KLib, the fully qualified names are used.
      * It's important to keep in mind that periods `.` are used everywhere as separators, including separating package and function names.
      * For example, `foo.bar.myFunction`.
+     * There are no top-level methods in Java, they are all members of some class and the class name is still necessary to filter it out.
      *
      * For classes from Java sources, canonical names are used.
      * The main motivation is to ensure a consistent approach to writing class names, using periods `.` as delimiters throughout.

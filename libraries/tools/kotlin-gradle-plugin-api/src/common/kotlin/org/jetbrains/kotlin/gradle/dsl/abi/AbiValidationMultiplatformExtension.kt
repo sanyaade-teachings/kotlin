@@ -50,7 +50,7 @@ interface AbiValidationMultiplatformExtension : AbiValidationMultiplatformVarian
      * `false` by default.
      */
     @ExperimentalAbiValidation
-    val isEnabled: Property<Boolean>
+    val enabled: Property<Boolean>
 
     /**
      * All ABI validation report variants that are available in this project.

@@ -30,13 +30,13 @@ internal abstract class AbiValidationExtensionImpl @Inject constructor(
     objects: ObjectFactory,
     tasks: TaskContainer,
 ) : AbiValidationVariantSpecImpl(AbiValidationVariantSpec.MAIN_VARIANT_NAME, objects, tasks), AbiValidationExtension {
-    final override val isEnabled: Property<Boolean> = objects.property<Boolean>().convention(false)
+    final override val enabled: Property<Boolean> = objects.property<Boolean>().convention(false)
 
     final override val variants: NamedDomainObjectContainer<AbiValidationVariantSpec> =
         objects.domainObjectContainer(AbiValidationVariantSpec::class.java) { variantName ->
             val variant = AbiValidationVariantSpecImpl(variantName, objects, tasks)
             variant.configureCommon(layout)
-            variant.configureLegacyTasks(projectName, tasks, layout, isEnabled)
+            variant.configureLegacyTasks(projectName, tasks, layout, enabled)
             variant
         }
 }
@@ -92,14 +92,14 @@ internal abstract class AbiValidationMultiplatformExtensionImpl @Inject construc
 ) :
     AbiValidationMultiplatformVariantSpecImpl(AbiValidationVariantSpec.MAIN_VARIANT_NAME, objects, tasks), AbiValidationMultiplatformExtension {
 
-    final override val isEnabled: Property<Boolean> = objects.property<Boolean>().convention(false)
+    final override val enabled: Property<Boolean> = objects.property<Boolean>().convention(false)
 
     override val variants: NamedDomainObjectContainer<AbiValidationMultiplatformVariantSpec> =
         objects.domainObjectContainer(AbiValidationMultiplatformVariantSpec::class.java) { name ->
             val variant = AbiValidationMultiplatformVariantSpecImpl(name, objects, tasks)
             variant.configureCommon(layout)
             variant.configureMultiplatform()
-            variant.configureLegacyTasks(projectName, tasks, layout, isEnabled)
+            variant.configureLegacyTasks(projectName, tasks, layout, enabled)
             variant
         }
 

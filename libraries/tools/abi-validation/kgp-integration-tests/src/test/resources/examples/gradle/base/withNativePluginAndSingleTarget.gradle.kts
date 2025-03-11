@@ -14,7 +14,7 @@ repositories {
 kotlin {
     @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
     abiValidation {
-        isEnabled = true
+        enabled = true
     }
 
     linuxArm64()

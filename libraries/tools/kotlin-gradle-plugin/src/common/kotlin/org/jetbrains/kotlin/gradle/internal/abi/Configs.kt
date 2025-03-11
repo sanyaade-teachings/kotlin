@@ -36,7 +36,7 @@ internal fun AbiValidationExtension.configure(project: Project) {
     this as AbiValidationExtensionImpl
 
     configureCommon(project.layout)
-    configureLegacyTasks(project.name, project.tasks, project.layout, isEnabled)
+    configureLegacyTasks(project.name, project.tasks, project.layout, enabled)
 
     // add main root report variant
     variants.add(this)
@@ -51,7 +51,7 @@ internal fun AbiValidationMultiplatformExtension.configure(project: Project) {
 
     configureCommon(project.layout)
     configureMultiplatform()
-    configureLegacyTasks(project.name, project.tasks, project.layout, isEnabled)
+    configureLegacyTasks(project.name, project.tasks, project.layout, enabled)
 
     // add main root report variant
     variants.add(this)
