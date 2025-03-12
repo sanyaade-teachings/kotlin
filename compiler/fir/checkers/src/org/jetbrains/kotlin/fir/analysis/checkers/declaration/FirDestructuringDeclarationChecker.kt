@@ -79,17 +79,25 @@ object FirDestructuringDeclarationChecker : FirPropertyChecker(MppCheckerKind.Co
         val reference = componentCall.calleeReference
         val diagnostic = if (reference.isError()) reference.diagnostic else null
         if (diagnostic != null) {
-            checkComponentCall(
+            reportGivenDiagnostic(
                 originalDestructuringDeclarationOrInitializerSource,
                 originalDestructuringDeclarationType,
                 diagnostic,
                 declaration,
                 componentCall,
-                originalDestructuringDeclaration,
                 reporter,
-                context
+                context,
             )
         }
+
+        checkComponentTypeMismatch(
+            originalDestructuringDeclarationOrInitializerSource,
+            declaration,
+            originalDestructuringDeclaration,
+            componentCall,
+            reporter,
+            context
+        )
     }
 
     private fun checkInitializer(
@@ -107,13 +115,12 @@ object FirDestructuringDeclarationChecker : FirPropertyChecker(MppCheckerKind.Co
         return this == null || this is FirErrorExpression && diagnostic is ConeSyntaxDiagnostic
     }
 
-    private fun checkComponentCall(
+    private fun reportGivenDiagnostic(
         source: KtSourceElement,
         destructuringDeclarationType: ConeKotlinType,
         diagnostic: ConeDiagnostic,
         property: FirProperty,
         componentCall: FirComponentCall,
-        destructuringDeclaration: FirVariable,
         reporter: DiagnosticReporter,
         context: CheckerContext
     ) {
@@ -178,26 +185,6 @@ object FirDestructuringDeclarationChecker : FirPropertyChecker(MppCheckerKind.Co
                     )
                     return
                 }
-                val expectedType = property.returnTypeRef.coneType
-                if (!AbstractTypeChecker.isSubtypeOf(context.session.typeContext, componentType, expectedType)) {
-                    val typeMismatchSource =
-                        // ... = { `(entry, ...)` -> ... } // Report on specific `entry`
-                        if (destructuringDeclaration is FirValueParameter)
-                            property.source
-                        // val (entry, ...) = `destructuring_declaration` // Report on a destructuring declaration
-                        else
-                            source
-                    reporter.reportOn(
-                        typeMismatchSource,
-                        FirErrors.COMPONENT_FUNCTION_RETURN_TYPE_MISMATCH,
-                        diagnostic.candidate.callInfo.name,
-                        componentType,
-                        expectedType,
-                        context
-                    )
-                } else {
-                    reportDefaultDiagnostics(diagnostic, componentCall, reporter, context)
-                }
             }
             is ConeVisibilityError -> {
                 reporter.report(diagnostic.symbol.toInvisibleReferenceDiagnostic(property.source, context.session), context)
@@ -205,6 +192,36 @@ object FirDestructuringDeclarationChecker : FirPropertyChecker(MppCheckerKind.Co
             else -> {
                 reportDefaultDiagnostics(diagnostic, componentCall, reporter, context)
             }
+        }
+    }
+
+    private fun checkComponentTypeMismatch(
+        source: KtSourceElement,
+        property: FirProperty,
+        destructuringDeclaration: FirVariable,
+        componentCall: FirComponentCall,
+        reporter: DiagnosticReporter,
+        context: CheckerContext
+    ) {
+        val componentType = componentCall.resolvedType
+
+        val expectedType = property.returnTypeRef.coneType
+        if (!AbstractTypeChecker.isSubtypeOf(context.session.typeContext, componentType, expectedType)) {
+            val typeMismatchSource =
+                // ... = { `(entry, ...)` -> ... } // Report on specific `entry`
+                if (destructuringDeclaration is FirValueParameter)
+                    property.source
+                // val (entry, ...) = `destructuring_declaration` // Report on a destructuring declaration
+                else
+                    source
+            reporter.reportOn(
+                typeMismatchSource,
+                FirErrors.COMPONENT_FUNCTION_RETURN_TYPE_MISMATCH,
+                componentCall.calleeReference.name,
+                componentType,
+                expectedType,
+                context
+            )
         }
     }
 
