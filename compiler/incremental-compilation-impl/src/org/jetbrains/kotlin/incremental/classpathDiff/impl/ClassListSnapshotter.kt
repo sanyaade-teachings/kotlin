@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.incremental.classpathDiff.impl
 
 import org.jetbrains.kotlin.build.report.metrics.*
+import org.jetbrains.kotlin.incremental.impl.hashToLong
 import org.jetbrains.kotlin.incremental.KotlinClassInfo
 import org.jetbrains.kotlin.incremental.classpathDiff.ClassSnapshot
 import org.jetbrains.kotlin.incremental.classpathDiff.ClasspathEntrySnapshotter
@@ -30,6 +31,9 @@ import kotlin.math.ceil
  * Either way, if it's good enough for compiler, it must be good enough for snapshotter too.
  */
 internal sealed interface ClassListSnapshotter {
+    /**
+     * This must preserve the order of classes (usages might zip the return value with another list)
+     */
     fun snapshot(): List<ClassSnapshot>
 }
 
@@ -101,87 +105,84 @@ internal class ClassListSnapshotterWithInlinedClassSupport(
     private val metrics: BuildMetricsReporter<GradleBuildTime, GradleBuildPerformanceMetric> = DoNothingBuildMetricsReporter
 ) : ClassListSnapshotter {
 
+    //TODO do we do hidden loading?
     private val classNameToClassFileMap = classes.associateByTo(
         unorderedMutableMapForClassCount<JvmClassName, ClassFileWithContentsProvider>()
     ) { it.classFile.getClassName() }
-    private val classFileToDescriptorMap = unorderedMutableMapForClassCount<ClassFileWithContentsProvider, ClassDescriptorForProcessing>()
 
-    init {
-        for (inputClass in classes) {
-            // we always need a descriptor for all classes, because we always produce a regular snapshot.
-            // in practice, descriptor enables us to share loaded data between different types of processing.
-            classFileToDescriptorMap[inputClass] = ClassDescriptorForProcessing()
-        }
-    }
+    private val classFileToSnapshotMap = unorderedMutableMapForClassCount<ClassFileWithContentsProvider, ClassSnapshot>()
+    private val classFileToInlinedSnapshotMap = unorderedMutableMapForClassCount<ClassFileWithContentsProvider, Long>()
 
-    internal class ClassDescriptorForProcessing(
-        var snapshot: ClassSnapshot? = null,
-        var inlinedSnapshot: Long? = null
-    )
-
-    private val inlinedClassSnapshotter = InlinedClassSnapshotter(
-        classNameToClassFileMap,
-        classFileToDescriptorMap,
-        metrics,
-    )
-
-    /**
-     * General note:
-     * queueForRegularSnapshot is used to avoid loading class data twice. This requirement is a cause for most of the complexity
-     * in this class. I think it's important enough, because snapshotting is used by all kotlin-jvm customers, and CI never likes I/O.
-     *
-     * High-level IC tests would still pass, if you remove all of these optimizations.
-     *
-     * Note on implementation logic:
-     *  - regular snapshot might depend on a number of inlined snapshots
-     *  - inlined snapshots might add regular snapshots to queue
-     *
-     *  - it's impossible for regular snapshots to loop if the input is well-formed
-     *  - (i.e. doesn't have two classes which are each other's outer classes, or a larger cycle like this)
-     */
-
+    //TODO do we do hidden loading?
+    private val sortedInnerClasses = classes.filter {
+        it.classFile.getClassName().internalName.contains("$")
+    }.sortedBy { it.classFile.getClassName().internalName }
 
     override fun snapshot(): List<ClassSnapshot> {
-        return classes.map {
-            val mapped = makeOrReuseClassSnapshot(it)
+        /**
+         * Very fair assumption: it's not possible to define a top-level class inside an inline function
+         * Shortened class names are supported, completely obfuscated ones are not
 
-            mapped
+         * We assume that inner classes are relatively light-weight, so it is not a problem to load them twice.
+         * A possible optimization is adding a cache with soft references so we'd utilize the available RAM efficiently?
+         */
+
+        for (innerClass in sortedInnerClasses) {
+            val classFileWithContents = metrics.measure(GradleBuildTime.LOAD_CONTENTS_OF_CLASSES) {
+                innerClass.loadContents()
+            }
+            metrics.measure(GradleBuildTime.SNAPSHOT_INLINED_CLASSES) {
+                classFileToInlinedSnapshotMap[innerClass] = classFileWithContents.contents.hashToLong()
+            }
+        }
+
+        //TODO drop printlns
+        println(sortedInnerClasses.map {it.classFile.getClassName().internalName}.joinToString(", "))
+        println(sortedInnerClasses.binarySearchBy("InlinedLocalClassKt\$calculate") { it.classFile.getClassName().internalName })
+
+        return classes.map {
+            makeOrReuseClassSnapshot(it)
         }
     }
 
     private fun makeOrReuseClassSnapshot(classFile: ClassFileWithContentsProvider): ClassSnapshot {
-        val descriptor = classFileToDescriptorMap[classFile] ?: error("snapshotter's state is broken, got no descriptor for $classFile")
-
-        descriptor.snapshot?.let { return it }
+        val existingSnapshot = classFileToSnapshotMap.getOrDefault(classFile, null)
+        if (existingSnapshot != null) {
+            return existingSnapshot
+        }
 
         val classFileWithContents = metrics.measure(GradleBuildTime.LOAD_CONTENTS_OF_CLASSES) {
             classFile.loadContents()
         }
 
-        return makeOrReuseClassSnapshot(descriptor, classFileWithContents)
-    }
-
-    private fun makeOrReuseClassSnapshot(descriptor: ClassDescriptorForProcessing, classFileWithContents: ClassFileWithContents): ClassSnapshot {
-        descriptor.snapshot?.let { return it }
-
-        // loading is an expensive part of ClassListSnapshotter, so it's worth trying to minimize it.
-        // this part of the implementation would be updated by KT-75883
-        val loadedClasses = mutableListOf<Pair<ClassDescriptorForProcessing, ClassFileWithContents>>()
-
         val snapshot = if (isInaccessible(classFileWithContents)) {
             InaccessibleClassSnapshot
         } else if (classFileWithContents.classInfo.isKotlinClass) {
             metrics.measure(GradleBuildTime.SNAPSHOT_KOTLIN_CLASSES) {
-                /**
-                 * This part is sensitive: extra info computation might require inlinedSnapshots,
-                 * so inlinedSnapshots calculation must not directly call regular snapshotting to prevent infinite loops
-                 */
                 val extraInfo = ExtraInfoGeneratorWithInlinedClassSnapshotting(
                     classMultiHashProvider = object : ClassMultiHashProvider {
-                        override fun searchAndGetFullAbiHashOfUsedClasses(rootClasses: Set<JvmClassName>): Long {
-                            val outcome = inlinedClassSnapshotter.searchAndGetFullAbiHashOfUsedClasses(rootClasses)
-                            loadedClasses.addAll(outcome.loadedClasses)
-                            return outcome.calculatedHash
+                        override fun searchAndGetFullAbiHashOfUsedClasses(inlinedClassPrefix: String): Long {
+                            println(inlinedClassPrefix)
+
+                            var aggregate = 0L
+
+                            var insertPosition = sortedInnerClasses.binarySearchBy(inlinedClassPrefix) { it.classFile.getClassName().internalName }
+
+                            if (insertPosition >= 0) { // exact match found - it means that its internal name collides with the fun name, so it can't be inlined
+                                insertPosition += 1
+                            } else { // insertion point found - means that further items are "bigger" than this
+                                val trueInsertionPoint = -(insertPosition + 1)
+                                insertPosition = trueInsertionPoint
+                            }
+                            while (
+                                insertPosition < sortedInnerClasses.size
+                                &&
+                                sortedInnerClasses[insertPosition].classFile.getClassName().internalName.startsWith(inlinedClassPrefix)
+                            ) {
+                                aggregate = aggregate xor classFileToInlinedSnapshotMap[sortedInnerClasses[insertPosition]]!!
+                                insertPosition += 1
+                            }
+                            return aggregate
                         }
                     },
                 ).getExtraInfo(
@@ -202,11 +203,7 @@ internal class ClassListSnapshotterWithInlinedClassSupport(
             }
         }
 
-        descriptor.snapshot = snapshot
-
-        for ((descriptor, contents) in loadedClasses) {
-            makeOrReuseClassSnapshot(descriptor, contents)
-        }
+        classFileToSnapshotMap[classFile] = snapshot
         return snapshot
     }
 

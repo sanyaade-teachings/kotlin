@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.buildtools.api.tests.compilation.util.compile
 import org.jetbrains.kotlin.buildtools.api.tests.compilation.util.execute
 import org.jetbrains.kotlin.buildtools.api.tests.compilation.util.moduleWithInlineSnapshotting
 import org.jetbrains.kotlin.test.TestMetadata
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 
 
@@ -284,7 +283,6 @@ class InlinedLambdaChangeTest : BaseCompilationTest() {
         }
     }
 
-    @Disabled("KT-75883 - here callable's code creates a new object so there's no INSTANCE")
     @DefaultStrategyAgnosticCompilationTest
     @DisplayName("Recompilation of call site affected by an anonymous object - slightly evil")
     @TestMetadata("ic-scenarios/inline-local-class/inline-anonymous-object-evil/lib")
@@ -306,6 +304,7 @@ class InlinedLambdaChangeTest : BaseCompilationTest() {
         }
     }
 
+    //TODO drop printlns from final mr
     @DefaultStrategyAgnosticCompilationTest
     @DisplayName("Changes in inline function inside named inner class")
     @TestMetadata("ic-scenarios/inline-named-inner/lib")
