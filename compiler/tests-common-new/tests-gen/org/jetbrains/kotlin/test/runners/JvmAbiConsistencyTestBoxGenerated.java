@@ -32005,6 +32005,12 @@ public class JvmAbiConsistencyTestBoxGenerated extends AbstractJvmAbiConsistency
       }
 
       @Test
+      @TestMetadata("companionObject.kt")
+      public void testCompanionObject() {
+        runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/companionObject.kt");
+      }
+
+      @Test
       @TestMetadata("constructor.kt")
       public void testConstructor() {
         runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/constructor.kt");
@@ -32032,6 +32038,18 @@ public class JvmAbiConsistencyTestBoxGenerated extends AbstractJvmAbiConsistency
       @TestMetadata("initBlock.kt")
       public void testInitBlock() {
         runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/initBlock.kt");
+      }
+
+      @Test
+      @TestMetadata("int.kt")
+      public void testInt() {
+        runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/int.kt");
+      }
+
+      @Test
+      @TestMetadata("jvmStatic.kt")
+      public void testJvmStatic() {
+        runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/jvmStatic.kt");
       }
 
       @Test
@@ -32068,6 +32086,12 @@ public class JvmAbiConsistencyTestBoxGenerated extends AbstractJvmAbiConsistency
       @TestMetadata("noArg.kt")
       public void testNoArg() {
         runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/noArg.kt");
+      }
+
+      @Test
+      @TestMetadata("noArg2.kt")
+      public void testNoArg2() {
+        runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/noArg2.kt");
       }
 
       @Test
@@ -32110,6 +32134,12 @@ public class JvmAbiConsistencyTestBoxGenerated extends AbstractJvmAbiConsistency
         }
 
         @Test
+        @TestMetadata("companionObject.kt")
+        public void testCompanionObject() {
+          runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/directive/companionObject.kt");
+        }
+
+        @Test
         @TestMetadata("constructor.kt")
         public void testConstructor() {
           runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/directive/constructor.kt");
@@ -32140,6 +32170,12 @@ public class JvmAbiConsistencyTestBoxGenerated extends AbstractJvmAbiConsistency
         }
 
         @Test
+        @TestMetadata("int.kt")
+        public void testInt() {
+          runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/directive/int.kt");
+        }
+
+        @Test
         @TestMetadata("lambda.kt")
         public void testLambda() {
           runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/directive/lambda.kt");
@@ -32167,6 +32203,12 @@ public class JvmAbiConsistencyTestBoxGenerated extends AbstractJvmAbiConsistency
         @TestMetadata("noArg.kt")
         public void testNoArg() {
           runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/directive/noArg.kt");
+        }
+
+        @Test
+        @TestMetadata("noArg2.kt")
+        public void testNoArg2() {
+          runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/directive/noArg2.kt");
         }
 
         @Test
@@ -32222,12 +32264,6 @@ public class JvmAbiConsistencyTestBoxGenerated extends AbstractJvmAbiConsistency
         }
 
         @Test
-        @TestMetadata("jvmSynthetic.kt")
-        public void testJvmSynthetic() {
-          runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/featureInteraction/jvmSynthetic.kt");
-        }
-
-        @Test
         @TestMetadata("throws.kt")
         public void testThrows() {
           runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/featureInteraction/throws.kt");
@@ -32268,40 +32304,6 @@ public class JvmAbiConsistencyTestBoxGenerated extends AbstractJvmAbiConsistency
           @TestMetadata("openFun.kt")
           public void testOpenFun() {
             runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/inherit/child/openFun.kt");
-          }
-        }
-
-        @Nested
-        @TestMetadata("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/inherit/parent")
-        @TestDataPath("$PROJECT_ROOT")
-        public class Parent {
-          @Test
-          @TestMetadata("abstractFun.kt")
-          public void testAbstractFun() {
-            runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/inherit/parent/abstractFun.kt");
-          }
-
-          @Test
-          public void testAllFilesPresentInParent() {
-            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/inherit/parent"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
-          }
-
-          @Test
-          @TestMetadata("interfaceDefaultDisable.kt")
-          public void testInterfaceDefaultDisable() {
-            runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/inherit/parent/interfaceDefaultDisable.kt");
-          }
-
-          @Test
-          @TestMetadata("interfaceDefaultEnable.kt")
-          public void testInterfaceDefaultEnable() {
-            runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/inherit/parent/interfaceDefaultEnable.kt");
-          }
-
-          @Test
-          @TestMetadata("openFun.kt")
-          public void testOpenFun() {
-            runTest("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/inherit/parent/openFun.kt");
           }
         }
       }

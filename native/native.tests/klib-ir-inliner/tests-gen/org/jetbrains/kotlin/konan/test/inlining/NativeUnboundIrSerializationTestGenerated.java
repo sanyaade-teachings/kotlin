@@ -24526,13 +24526,6 @@ public class NativeUnboundIrSerializationTestGenerated extends AbstractNativeUnb
           @Tag("klib")
           public class Child {
           }
-
-          @Nested
-          @TestMetadata("compiler/testData/codegen/box/inlineClasses/jvmExposeBoxed/inherit/parent")
-          @TestDataPath("$PROJECT_ROOT")
-          @Tag("klib")
-          public class Parent {
-          }
         }
       }
 
