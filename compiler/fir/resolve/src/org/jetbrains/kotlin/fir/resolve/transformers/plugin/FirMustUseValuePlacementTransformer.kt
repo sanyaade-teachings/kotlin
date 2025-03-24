@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.fir.resolve.transformers.plugin
 
 import org.jetbrains.kotlin.config.AnalysisFlags
 import org.jetbrains.kotlin.config.ReturnValueCheckerMode
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationUseSiteTarget
 import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.*
@@ -21,6 +22,8 @@ import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.builder.buildResolvedTypeRef
+import org.jetbrains.kotlin.fir.types.classId
+import org.jetbrains.kotlin.fir.types.coneTypeOrNull
 import org.jetbrains.kotlin.fir.visitors.FirVisitorVoid
 import org.jetbrains.kotlin.name.StandardClassIds
 
@@ -30,17 +33,17 @@ internal class FirMustUseValuePlacementTransformer private constructor(val sessi
     }
 
     override fun visitFile(file: FirFile) {
-        file.replaceAnnotations(file.symbol.addMustUseValueAnnotation(file.annotations))
+        file.replaceAnnotations(addMustUseValueAnnotation(file.symbol, file.annotations, AnnotationUseSiteTarget.FILE))
         file.acceptChildren(this)
     }
 
     override fun visitSimpleFunction(simpleFunction: FirSimpleFunction) {
-        simpleFunction.replaceAnnotations(simpleFunction.symbol.addMustUseValueAnnotation(simpleFunction.annotations))
+        simpleFunction.replaceAnnotations(addMustUseValueAnnotation(simpleFunction.symbol, simpleFunction.annotations))
     }
 
     // For future: think about type aliases
     override fun visitRegularClass(regularClass: FirRegularClass) {
-        regularClass.replaceAnnotations(regularClass.symbol.addMustUseValueAnnotation(regularClass.annotations))
+        regularClass.replaceAnnotations(addMustUseValueAnnotation(regularClass.symbol, regularClass.annotations))
         // We do not have to place annotations on functions again, if they are not top-level
         regularClass.declarations.filterIsInstance<FirRegularClass>().forEach { it.accept(this) }
     }
@@ -49,12 +52,12 @@ internal class FirMustUseValuePlacementTransformer private constructor(val sessi
     val mustUseValueClass by lazy { session.symbolProvider.getClassLikeSymbolByClassId(mustUseReturnValueClassId) as? FirRegularClassSymbol }
 
 
-    private fun FirBasedSymbol<*>.addMustUseValueAnnotation(existingAnnotations: List<FirAnnotation>): List<FirAnnotation> {
-        fun FirAnnotation.isMustUseReturnValue(): Boolean =
-            toAnnotationClassId(session) == mustUseReturnValueClassId
-
-        if (existingAnnotations.any(FirAnnotation::isMustUseReturnValue)) return existingAnnotations
-
+    private fun addMustUseValueAnnotation(
+        declarationSymbol: FirBasedSymbol<*>,
+        existingAnnotations: List<FirAnnotation>,
+        useSite: AnnotationUseSiteTarget? = null
+    ): List<FirAnnotation> {
+        if (existingAnnotations.any { it.annotationTypeRef.coneTypeOrNull?.classId == mustUseReturnValueClassId }) return existingAnnotations
 
         val muvClassSymbol = mustUseValueClass ?: return existingAnnotations
         val mustUseValueCtor = muvClassSymbol.primaryConstructorIfAny(session) ?: return existingAnnotations
@@ -69,10 +72,11 @@ internal class FirMustUseValuePlacementTransformer private constructor(val sessi
                 resolvedSymbol = mustUseValueCtor
             }
             annotationResolvePhase = FirAnnotationResolvePhase.CompilerRequiredAnnotations
-            source = this@addMustUseValueAnnotation.source
+            source = declarationSymbol.source
+            useSiteTarget = useSite
             // origin = TODO: Do we need special kind of origin or .Source is enough here?
 
-            containingDeclarationSymbol = this@addMustUseValueAnnotation
+            containingDeclarationSymbol = declarationSymbol
         }
         return existingAnnotations + annCall
     }

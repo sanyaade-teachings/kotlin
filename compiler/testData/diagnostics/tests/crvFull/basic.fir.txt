@@ -1,6 +1,7 @@
 Module: lib1
 FILE: Lib.kt
-    @R|kotlin/MustUseReturnValue|() @R|kotlin/MustUseReturnValue|() public final class Lib : R|kotlin/Any| {
+    @FILE:R|kotlin/MustUseReturnValue|()
+    @R|kotlin/MustUseReturnValue|() public final class Lib : R|kotlin/Any| {
         public constructor(): R|Lib| {
             super<R|kotlin/Any|>()
         }
@@ -24,7 +25,8 @@ FILE: Lib.kt
     }
 Module: main
 FILE: App.kt
-    @R|kotlin/MustUseReturnValue|() @R|kotlin/MustUseReturnValue|() public final fun bar(): R|kotlin/String| {
+    @FILE:R|kotlin/MustUseReturnValue|()
+    @R|kotlin/MustUseReturnValue|() public final fun bar(): R|kotlin/String| {
         R|/Lib.Lib|()
         R|/Lib.Lib|().R|/Lib.getStuff|()
         R|/foo|()
