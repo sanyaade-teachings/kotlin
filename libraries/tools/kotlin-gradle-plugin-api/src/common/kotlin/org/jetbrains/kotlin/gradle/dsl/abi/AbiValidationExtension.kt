@@ -85,7 +85,7 @@ interface AbiValidationExtension : AbiValidationVariantSpec {
      * ```
      */
     @ExperimentalAbiValidation
-    val variants: NamedDomainObjectContainer<AbiValidationVariantSpec>
+    val variants: VariantConfigurator<AbiValidationVariantSpec>
 }
 
 /**

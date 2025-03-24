@@ -85,7 +85,7 @@ interface AbiValidationMultiplatformExtension : AbiValidationMultiplatformVarian
      * ```
      */
     @ExperimentalAbiValidation
-    val variants: NamedDomainObjectContainer<AbiValidationMultiplatformVariantSpec>
+    val variants: VariantConfigurator<AbiValidationMultiplatformVariantSpec>
 }
 
 /**
