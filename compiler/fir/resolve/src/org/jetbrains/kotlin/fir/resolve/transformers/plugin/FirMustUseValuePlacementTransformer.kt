@@ -82,7 +82,7 @@ internal class FirMustUseValuePlacementTransformer private constructor(val sessi
     }
 
     companion object {
-        fun createIfNeeded(session: FirSession): FirMustUseValuePlacementTransformer? =
+        fun createIfFeatureEnabled(session: FirSession): FirMustUseValuePlacementTransformer? =
             if (session.languageVersionSettings.getFlag(AnalysisFlags.returnValueCheckerMode) == ReturnValueCheckerMode.FULL)
                 FirMustUseValuePlacementTransformer(session)
             else null

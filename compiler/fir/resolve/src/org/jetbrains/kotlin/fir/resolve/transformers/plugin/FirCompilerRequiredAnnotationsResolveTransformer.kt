@@ -123,7 +123,7 @@ abstract class AbstractFirCompilerRequiredAnnotationsResolveTransformer(
 ) : FirAbstractPhaseTransformer<Nothing?>(COMPILER_REQUIRED_ANNOTATIONS) {
     abstract val annotationTransformer: AbstractFirSpecificAnnotationResolveTransformer
     private val importTransformer = FirPartialImportResolveTransformer(session, computationSession)
-    private val additionalAnnotationPlacementTransformer = FirMustUseValuePlacementTransformer.createIfNeeded(session)
+    private val mustUseValuePlacementTransformer = FirMustUseValuePlacementTransformer.createIfFeatureEnabled(session)
 
     val extensionService: FirExtensionService = session.extensionService
     override fun <E : FirElement> transformElement(element: E, data: Nothing?): E {
@@ -134,14 +134,14 @@ abstract class AbstractFirCompilerRequiredAnnotationsResolveTransformer(
         withFileAnalysisExceptionWrapping(file) {
             checkSessionConsistency(file)
             file.resolveAnnotations()
-            additionalAnnotationPlacementTransformer?.let { file.accept(it) }
+            mustUseValuePlacementTransformer?.let { file.accept(it) }
         }
         return file
     }
 
     override fun transformRegularClass(regularClass: FirRegularClass, data: Nothing?): FirStatement {
         val result = annotationTransformer.transformRegularClass(regularClass, null)
-        additionalAnnotationPlacementTransformer?.let { result.accept(it) }
+        mustUseValuePlacementTransformer?.let { result.accept(it) }
         return result
     }
 
