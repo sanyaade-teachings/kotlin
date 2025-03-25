@@ -50,8 +50,6 @@ internal constructor(
 
     private val npmProject: NpmProject = compilation.npmProject
 
-    private val npmProjectDir = npmProject.dir
-
     @get:Internal
     internal abstract val versions: Property<NpmVersions>
 
@@ -80,6 +78,8 @@ internal constructor(
         val files = generatedDts.map { it.absolutePath }
 
         if (files.isEmpty()) return
+
+        val npmProjectDir = npmProject.dir
 
         val modules = NpmProjectModules(npmProjectDir.getFile())
 
