@@ -85,7 +85,10 @@ class FirMppDeduplicatingSymbolProvider(
     val classMapping: MutableMap<ClassId, ClassPair> = mutableMapOf()
 
     private val processedCallables: MutableMap<CallableId, List<FirCallableSymbol<*>>> = mutableMapOf()
-    private val commonCallableToPlatformCallableMap: MutableMap<FirCallableSymbol<*>, FirCallableSymbol<*>> = mutableMapOf()
+    private val _commonCallableToPlatformCallableMap: MutableMap<FirCallableSymbol<*>, FirCallableSymbol<*>> = mutableMapOf()
+    val commonCallableToPlatformCallableMap: Map<FirCallableSymbol<*>, FirCallableSymbol<*>>
+        get() = _commonCallableToPlatformCallableMap
+
     private val platformCallableToCommonCallableMap: MutableMap<FirCallableSymbol<*>, FirCallableSymbol<*>> = mutableMapOf()
 
     override val symbolNamesProvider: FirSymbolNamesProvider = FirCompositeSymbolNamesProvider.Companion.fromSymbolProviders(providers)
@@ -151,7 +154,7 @@ class FirMppDeduplicatingSymbolProvider(
                 val platformSymbol = platformIterator.next()
                 if (areEquivalentTopLevelCallables(commonSymbol.fir, platformSymbol.fir)) {
                     result.add(commonSymbol)
-                    commonCallableToPlatformCallableMap[commonSymbol] = platformSymbol
+                    _commonCallableToPlatformCallableMap[commonSymbol] = platformSymbol
                     platformCallableToCommonCallableMap[platformSymbol] = commonSymbol
                     platformIterator.remove()
                     continue@outerLoop
