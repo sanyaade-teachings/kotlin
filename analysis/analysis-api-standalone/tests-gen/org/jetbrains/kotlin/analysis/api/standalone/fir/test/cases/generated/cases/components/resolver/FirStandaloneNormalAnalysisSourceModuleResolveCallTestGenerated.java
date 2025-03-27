@@ -3611,6 +3611,12 @@ public class FirStandaloneNormalAnalysisSourceModuleResolveCallTestGenerated ext
       }
 
       @Test
+      @TestMetadata("nestedClasses.kt")
+      public void testNestedClasses() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/nestedClasses.kt");
+      }
+
+      @Test
       @TestMetadata("NonLocalSemiFullQualifiedCallableName.kt")
       public void testNonLocalSemiFullQualifiedCallableName() {
         runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/NonLocalSemiFullQualifiedCallableName.kt");
@@ -3620,6 +3626,12 @@ public class FirStandaloneNormalAnalysisSourceModuleResolveCallTestGenerated ext
       @TestMetadata("NonLocalSemiFullQualifiedClassName.kt")
       public void testNonLocalSemiFullQualifiedClassName() {
         runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/NonLocalSemiFullQualifiedClassName.kt");
+      }
+
+      @Test
+      @TestMetadata("overloadedCallablesPriorities.kt")
+      public void testOverloadedCallablesPriorities() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/overloadedCallablesPriorities.kt");
       }
 
       @Test
@@ -3656,6 +3668,12 @@ public class FirStandaloneNormalAnalysisSourceModuleResolveCallTestGenerated ext
       @TestMetadata("SelfNonLocalProperty.kt")
       public void testSelfNonLocalProperty() {
         runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/SelfNonLocalProperty.kt");
+      }
+
+      @Test
+      @TestMetadata("shortNamesPriorities.kt")
+      public void testShortNamesPriorities() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/localContext/shortNamesPriorities.kt");
       }
 
       @Test
@@ -3752,6 +3770,12 @@ public class FirStandaloneNormalAnalysisSourceModuleResolveCallTestGenerated ext
       @Test
       public void testAllFilesPresentInQualified() {
         KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/qualified"), Pattern.compile("^(.+)\\.kt$"), null, true, "withTestCompilerPluginEnabled");
+      }
+
+      @Test
+      @TestMetadata("fqnPriorities.kt")
+      public void testFqnPriorities() {
+        runTest("analysis/analysis-api/testData/components/resolver/singleByPsi/kDoc/qualified/fqnPriorities.kt");
       }
 
       @Nested
