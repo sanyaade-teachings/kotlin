@@ -20,6 +20,7 @@ internal object IrJavaDirectActualizationDefaultParametersInExpectKmpChecker : I
         for ((expectSymbol, actualSymbol) in expectToActual) {
             if (actualSymbol !is IrFunctionSymbol) continue
             if (expectSymbol !is IrFunctionSymbol) continue
+            if (context.matchingContext.skipCheckingOnExpectActualPair(expectSymbol, actualSymbol)) continue
 
             val expect = expectSymbol.owner
             val actual = actualSymbol.owner

@@ -28,6 +28,7 @@ internal object IrJavaDirectActualizationDefaultParametersInActualKmpChecker : I
             if (expectSymbol !is IrClassSymbol) continue
             if (actualSymbol.owner.parent !is IrPackageFragment) continue // Top level
             if (!actualSymbol.owner.hasAnnotation(StandardClassIds.Annotations.KotlinActual)) continue
+            if (context.matchingContext.skipCheckingOnExpectActualPair(expectSymbol, actualSymbol)) continue
 
             // We need to do the manual recursive traverse instead of just iterating over the expectActualMap
             // because of additional fake-overrides added during actualization

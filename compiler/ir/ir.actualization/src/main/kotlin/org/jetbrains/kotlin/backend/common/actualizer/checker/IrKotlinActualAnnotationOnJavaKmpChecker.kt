@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.ir.IrDiagnosticReporter
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrDeclaration
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin.Companion.ENUM_CLASS_SPECIAL_MEMBER
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrPackageFragment
@@ -31,6 +32,7 @@ internal object IrKotlinActualAnnotationOnJavaKmpChecker : IrExpectActualChecker
             if (expectSymbol !is IrClassSymbol) continue
             if (actualSymbol.owner.parent !is IrPackageFragment) continue // Top level
             if (actualSymbol.owner.classId != expectSymbol.owner.classId) continue
+            if (context.matchingContext.skipCheckingOnExpectActualPair(expectSymbol, actualSymbol)) continue
             checkAnnotationRecursive(actualSymbol.owner, expectActualMap, diagnosticsReporter, expectSymbol)
         }
     }

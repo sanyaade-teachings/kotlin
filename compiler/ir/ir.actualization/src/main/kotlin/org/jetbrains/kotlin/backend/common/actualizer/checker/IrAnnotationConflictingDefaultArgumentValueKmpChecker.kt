@@ -19,6 +19,7 @@ internal object IrAnnotationConflictingDefaultArgumentValueKmpChecker : IrExpect
     override fun check(context: IrExpectActualChecker.Context) = with(context) {
         for ((expectSymbol, actualSymbol) in expectActualMap.expectToActual) {
             if (expectSymbol !is IrConstructorSymbol || actualSymbol !is IrConstructorSymbol) continue
+            if (context.matchingContext.skipCheckingOnExpectActualPair(expectSymbol, actualSymbol)) continue
 
             val expectClass = expectSymbol.owner.parentAsClass
             if (expectClass.kind != ClassKind.ANNOTATION_CLASS) continue

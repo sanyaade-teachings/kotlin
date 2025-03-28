@@ -27,6 +27,7 @@ internal object IrAnnotationMatchingKmpChecker : IrExpectActualChecker {
             if (expectSymbol is IrTypeParameterSymbol) {
                 continue
             }
+            if (context.matchingContext.skipCheckingOnExpectActualPair(expectSymbol, actualSymbol)) continue
             val incompatibility = AbstractExpectActualAnnotationMatchChecker
                 .areAnnotationsCompatible(expectSymbol, actualSymbol, containingExpectClass = null, matchingContext) ?: continue
 
