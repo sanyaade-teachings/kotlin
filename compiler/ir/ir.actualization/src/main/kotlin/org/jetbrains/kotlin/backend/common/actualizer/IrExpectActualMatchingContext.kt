@@ -420,10 +420,13 @@ internal abstract class IrExpectActualMatchingContext(
     }
 
     override fun isSubtypeOf(superType: KotlinTypeMarker, subType: KotlinTypeMarker): Boolean {
+        val subType1 = subType.actualize()
+        val superType1 = superType.actualize()
+        Unit
         return AbstractTypeChecker.isSubtypeOf(
             createTypeCheckerState(),
-            subType = subType.actualize(),
-            superType = superType.actualize()
+            subType = subType1,
+            superType = superType1
         )
     }
 
