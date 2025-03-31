@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.gradle.plugin.mpp
 
+import org.jetbrains.kotlin.gradle.dsl.defaultPresetFunctions
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinProjectSetupAction
 import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetType
@@ -16,7 +17,7 @@ import org.jetbrains.kotlin.konan.target.presetName
 
 internal val KotlinMultiplatformTargetPresetAction = KotlinProjectSetupAction {
     @Suppress("DEPRECATION_ERROR")
-    with(project.multiplatformExtension.presets) {
+    with(project.multiplatformExtension.defaultPresetFunctions.presets) {
         add(KotlinJvmTargetPreset(project))
         add(KotlinJsIrTargetPreset(project))
         add(KotlinWasmTargetPreset(project, KotlinWasmTargetType.JS))

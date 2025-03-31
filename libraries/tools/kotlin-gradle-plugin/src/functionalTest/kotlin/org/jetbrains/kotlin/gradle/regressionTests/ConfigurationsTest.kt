@@ -18,6 +18,7 @@ import org.gradle.api.attributes.Usage
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.defaultPresetFunctions
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -567,7 +568,7 @@ class ConfigurationsTest : MultiplatformExtensionTest() {
                     kotlin.sourceSets.names,
                     kotlin.targets.names,
                     @Suppress("DEPRECATION_ERROR")
-                    kotlin.presets.names,
+                    kotlin.defaultPresetFunctions.presets.names,
                 ).flatten()
             }
 

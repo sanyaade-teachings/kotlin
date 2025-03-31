@@ -7,6 +7,7 @@
 
 package org.jetbrains.kotlin.gradle.unitTests
 
+import org.jetbrains.kotlin.gradle.dsl.defaultPresetFunctions
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyBuilder
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJvmWithJavaTargetPreset
@@ -24,7 +25,7 @@ class KotlinHierarchyBuilderTest {
         val kotlinTargetHierarchyBuilderInterface = KotlinHierarchyBuilder::class.java
 
         @Suppress("DEPRECATION_ERROR")
-        buildProjectWithMPP().multiplatformExtension.presets
+        buildProjectWithMPP().multiplatformExtension.defaultPresetFunctions.presets
 
             // JS targets are special and therefore are only handled manually using `withJs()`
             .filter { it !is KotlinJsIrTargetPreset }
