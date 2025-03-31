@@ -41,7 +41,7 @@ open class KotlinJsIrTargetPreset(
     override fun createKotlinTargetConfigurator(): AbstractKotlinTargetConfigurator<KotlinJsIrTarget> =
         KotlinJsIrTargetConfigurator()
 
-    override fun getName(): String = JS_PRESET_NAME
+    override val name: String = JS_PRESET_NAME
 
     //TODO[Ilya Goncharov] remove public morozov
     public override fun createCompilationFactory(
