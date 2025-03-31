@@ -6,19 +6,19 @@ KaLocalVariableSymbol:
   isActual: false
   isExpect: false
   isExtension: false
-  isLateInit: false
+  isLateInit: true
   isVal: true
   location: LOCAL
   modality: FINAL
-  name: prop
+  name: something
   origin: SOURCE
   receiverParameter: null
   returnType: KaUsualClassType:
     annotations: []
     typeArguments: []
-    type: kotlin/String
+    type: A
   visibility: LOCAL
-  getContainingFileSymbol: KaFileSymbol(propertyFromInitBlock.kt)
+  getContainingFileSymbol: KaFileSymbol(lateinitLoopParameter.kt)
   getContainingJvmClassName: null
   getContainingModule: KaSourceModule "Sources of main"
   deprecationStatus: null

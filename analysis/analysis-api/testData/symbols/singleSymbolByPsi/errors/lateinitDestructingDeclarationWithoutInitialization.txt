@@ -7,18 +7,17 @@ KaLocalVariableSymbol:
   isExpect: false
   isExtension: false
   isLateInit: false
-  isVal: true
+  isVal: false
   location: LOCAL
   modality: FINAL
-  name: prop
+  name: something1
   origin: SOURCE
   receiverParameter: null
-  returnType: KaUsualClassType:
+  returnType: KaClassErrorType:
     annotations: []
-    typeArguments: []
-    type: kotlin/String
+    type: ERROR_TYPE
   visibility: LOCAL
-  getContainingFileSymbol: KaFileSymbol(propertyFromInitBlock.kt)
+  getContainingFileSymbol: KaFileSymbol(lateinitDestructingDeclarationWithoutInitialization.kt)
   getContainingJvmClassName: null
   getContainingModule: KaSourceModule "Sources of main"
   deprecationStatus: null
