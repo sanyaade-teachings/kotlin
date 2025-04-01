@@ -16,12 +16,13 @@
 
 using namespace kotlin;
 
-extern "C" Class kotlin_wrap_into_existential(Class);
+extern "C" RUNTIME_WEAK Class Kotlin_SwiftExport_wrapIntoExistential(Class) {
+    RuntimeFail("Must only be used with Swift Export; overriden in KotlinRuntimeSupport.swift");
+}
 
 namespace {
 
-__attribute__((optnone))
-NO_INLINE Class computeBestFittingClass(const TypeInfo* typeInfo) noexcept {
+Class computeBestFittingClass(const TypeInfo* typeInfo) noexcept {
     auto& objCExport = kotlin::objCExport(typeInfo);
     std_support::atomic_ref<Class> clazz(objCExport.swiftClass);
     Class bestFitting = clazz.load(std::memory_order_relaxed);
@@ -33,7 +34,7 @@ NO_INLINE Class computeBestFittingClass(const TypeInfo* typeInfo) noexcept {
     }
 
     // Try to get `Class` from name stored in `typeAdapter`.
-    if (auto* typeAdapter = objCExport.typeAdapter; typeAdapter != nullptr) {
+    if (auto* typeAdapter = objCExport.typeAdapter) {
         if (auto* className = typeAdapter->objCName) {
             bestFitting = objc_getClass(className);
             RuntimeAssert(bestFitting != nil, "Could not find class named %s stored for Kotlin type %p", className, typeInfo);
@@ -48,7 +49,7 @@ NO_INLINE Class computeBestFittingClass(const TypeInfo* typeInfo) noexcept {
         if (superTypeInfo == theAnyTypeInfo) { // If this is a root class, we default to existential
             Class marker = Kotlin_ObjCExport_GetOrCreateClass(typeInfo);
             // function provided by KotlinRuntimeSupport.swift, returns _KotlinExistential<marker>
-            bestFitting = kotlin_wrap_into_existential(marker);
+            bestFitting = Kotlin_SwiftExport_wrapIntoExistential(marker);
         } else { // Otherwise, we default to a parent's wrapper
             bestFitting = computeBestFittingClass(superTypeInfo);
         }

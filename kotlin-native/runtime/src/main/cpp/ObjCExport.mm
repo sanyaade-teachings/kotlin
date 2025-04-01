@@ -972,6 +972,9 @@ static void addVirtualAdapters(Class clazz, const ObjCTypeAdapter* typeAdapter) 
 }
 
 static Class createClass(const TypeInfo* typeInfo, Class superClass) {
+  // NOTE: in swift export, the generated class isn't used for direct instantiation, but rather serves the purpose of marker type
+  // - for kotlin existentials (_KotlinExistential, KotlinRuntimeSupport.swift). This relies on generated class conformance to
+  // - objc protocol counterparsts bound trough kotlin interface TypeInfo's
   RuntimeAssert(typeInfo->superType_ != nullptr, "");
 
   kotlin::NativeOrUnregisteredThreadGuard threadStateGuard(/* reentrant = */ true);
