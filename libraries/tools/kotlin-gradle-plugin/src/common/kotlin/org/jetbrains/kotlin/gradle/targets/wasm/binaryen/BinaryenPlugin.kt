@@ -5,38 +5,29 @@
 
 package org.jetbrains.kotlin.gradle.targets.wasm.binaryen
 
+import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.ExtensionContainer
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.internal.unameExecResult
 import org.jetbrains.kotlin.gradle.targets.js.MultiplePluginDeclarationDetector
+import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8EnvSpec
+import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Plugin
 import org.jetbrains.kotlin.gradle.tasks.CleanDataTask
 import org.jetbrains.kotlin.gradle.tasks.registerTask
 import org.jetbrains.kotlin.gradle.utils.castIsolatedKotlinPluginClassLoaderAware
+import org.jetbrains.kotlin.gradle.utils.userKotlinPersistentDir
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 
 @ExperimentalWasmDsl
-abstract class BinaryenPlugin internal constructor() :
-    @Suppress("DEPRECATION")
-    org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin() {
+abstract class BinaryenPlugin internal constructor() : Plugin<Project> {
     override fun apply(project: Project) {
         MultiplePluginDeclarationDetector.detect(project)
 
         project.plugins.apply(BasePlugin::class.java)
 
-        val spec = project.extensions.createBinaryenRootEnvSpec()
-
-        val settings = project.extensions.create(
-            BinaryenExtension.EXTENSION_NAME,
-            BinaryenExtension::class.java,
-            project,
-            spec
-        )
-
-        spec.initializeBinaryenRootEnvSpec(settings)
-
-        addPlatform(project, settings)
+        val spec = project.extensions.createBinaryenEnvSpec(project)
 
         project.registerTask<BinaryenSetupTask>(BinaryenSetupTask.NAME, listOf(spec)) {
             it.group = TASKS_GROUP_NAME
@@ -48,35 +39,36 @@ abstract class BinaryenPlugin internal constructor() :
         }
 
         project.registerTask<CleanDataTask>("binaryen" + CleanDataTask.NAME_SUFFIX) {
-            it.cleanableStoreProvider = project.provider { settings.requireConfigured().cleanableStore }
+            it.cleanableStoreProvider = spec.env.map { it.cleanableStore }
             it.group = TASKS_GROUP_NAME
             it.description = "Clean unused local binaryen version"
         }
     }
 
-    private fun ExtensionContainer.createBinaryenRootEnvSpec(): BinaryenEnvSpec {
+    private fun ExtensionContainer.createBinaryenEnvSpec(project: Project): BinaryenEnvSpec {
         return create(
             BinaryenEnvSpec.EXTENSION_NAME,
             BinaryenEnvSpec::class.java
-        )
+        ).apply {
+            val kotlinUserDir = project.userKotlinPersistentDir
+
+            download.convention(true)
+            downloadBaseUrl.set("https://github.com/WebAssembly/binaryen/releases/download")
+            allowInsecureProtocol.convention(false)
+            installationDirectory.convention(
+                project.objects.directoryProperty().fileValue(kotlinUserDir.resolve("binaryen"))
+            )
+            version.convention("122")
+            command.convention("wasm-opt")
+
+            addPlatform(project, this)
+        }
     }
 
-    private fun BinaryenEnvSpec.initializeBinaryenRootEnvSpec(
-        rootBinaryen: BinaryenExtension,
-    ) {
-        download.convention(rootBinaryen.downloadProperty)
-        downloadBaseUrl.convention(rootBinaryen.downloadBaseUrlProperty)
-        allowInsecureProtocol.convention(false)
-        installationDirectory.convention(rootBinaryen.installationDirectory)
-        version.convention(rootBinaryen.versionProperty)
-        command.convention(rootBinaryen.commandProperty)
-        platform.convention(rootBinaryen.platform)
-    }
-
-    private fun addPlatform(project: Project, extension: BinaryenExtension) {
+    private fun addPlatform(project: Project, envSpec: BinaryenEnvSpec) {
         val uname = project.providers.unameExecResult
 
-        extension.platform.value(
+        envSpec.platform.value(
             project.providers.systemProperty("os.name")
                 .zip(
                     project.providers.systemProperty("os.arch")
@@ -89,12 +81,9 @@ abstract class BinaryenPlugin internal constructor() :
     companion object {
         const val TASKS_GROUP_NAME: String = "binaryen"
 
-        internal fun apply(rootProject: Project): BinaryenExtension {
-            rootProject.plugins.apply(BinaryenPlugin::class.java)
-            return rootProject.extensions.getByName(BinaryenExtension.EXTENSION_NAME) as BinaryenExtension
+        internal fun applyWithEnvSpec(project: Project): BinaryenEnvSpec {
+            project.plugins.apply(BinaryenPlugin::class.java)
+            return project.extensions.getByName(BinaryenEnvSpec.EXTENSION_NAME) as BinaryenEnvSpec
         }
-
-        internal val Project.kotlinBinaryenExtension: BinaryenExtension
-            get() = extensions.getByName(BinaryenExtension.EXTENSION_NAME).castIsolatedKotlinPluginClassLoaderAware()
     }
 }
