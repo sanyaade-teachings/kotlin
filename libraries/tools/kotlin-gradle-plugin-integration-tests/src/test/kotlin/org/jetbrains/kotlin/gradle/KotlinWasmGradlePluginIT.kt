@@ -6,19 +6,14 @@
 package org.jetbrains.kotlin.gradle
 
 import org.gradle.util.GradleVersion
-import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.dsl.Distribution
+import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenEnvSpec
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.util.replaceText
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.OS
 import java.nio.file.Files
-import kotlin.io.path.Path
-import kotlin.io.path.appendText
-import kotlin.io.path.invariantSeparatorsPathString
-import kotlin.io.path.pathString
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 import kotlin.test.assertTrue
 
 @MppGradlePluginTests
@@ -41,11 +36,12 @@ class KotlinWasmGradlePluginIT : KGPBaseTest() {
             projectPath.resolve("src/wasmWasiTest/kotlin/Test.kt").modify {
                 it.replace(
                     "fun test2() = assertEquals(foo(), 2)",
-                    "fun test2() = assertEquals(foo(), 2)" + "\n" +
-                            """
-                            @Test
-                            fun test3() = assertEquals(foo(), 3)
-                            """
+                    """
+                    |fun test2() = assertEquals(foo(), 2)
+                    |
+                    |@Test
+                    |fun test3() = assertEquals(foo(), 3)
+                    |""".trimMargin()
                 )
             }
 
@@ -425,17 +421,14 @@ class KotlinWasmGradlePluginIT : KGPBaseTest() {
     @GradleTest
     fun testTouchingWebpackPropertyToNotBreakAndroidStudio(gradleVersion: GradleVersion) {
         project("wasm-browser-simple-project", gradleVersion) {
-            val moduleName = "hello"
             buildGradleKts.appendText(
-                //language=kotlin
                 """
-                    
-                    tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("wasmJsBrowserDevelopmentRun")                    
-                        .get()
-                        .inputFilesDirectory
-                        .get()
-                    
-                """.trimIndent()
+                |
+                |tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("wasmJsBrowserDevelopmentRun")                    
+                |    .get()
+                |    .inputFilesDirectory
+                |    .get()
+                |""".trimMargin()
             )
 
             build("help")
