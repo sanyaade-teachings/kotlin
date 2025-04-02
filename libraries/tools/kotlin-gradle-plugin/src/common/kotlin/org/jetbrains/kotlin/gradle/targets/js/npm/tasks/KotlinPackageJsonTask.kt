@@ -196,17 +196,19 @@ abstract class KotlinPackageJsonTask :
 
             task.packageJsonFilesFromCompositeBuildDependencies
                 .from(
-                    aggregatedConfiguration.get().incoming
-                        .artifactView { artifactView ->
-                            artifactView.componentFilter { componentIdentifier ->
-                                componentIdentifier.isFromCompositeBuild()
+                    aggregatedConfiguration.map { conf ->
+                        conf.incoming
+                            .artifactView { artifactView ->
+                                artifactView.componentFilter { componentIdentifier ->
+                                    componentIdentifier.isFromCompositeBuild()
+                                }
                             }
-                        }
-                        .artifacts
-                        .artifactFiles
-                        // Convert from a Gradle type to a regular collection to remove implicit task dependencies.
-                        // The dependent tasks are added back manually below using findDependantTasks().
-                        .toSet()
+                            .artifacts
+                            .artifactFiles
+                            // Convert from a Gradle type to a regular collection to remove implicit task dependencies.
+                            // The dependent tasks are added back manually below using findDependantTasks().
+                            .toSet()
+                    }
                 )
                 .disallowChanges()
 
