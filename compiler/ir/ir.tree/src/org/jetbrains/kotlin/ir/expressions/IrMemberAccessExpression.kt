@@ -226,12 +226,24 @@ abstract class IrMemberAccessExpression<S : IrSymbol> : IrDeclarationReference()
      */
     var dispatchReceiver: IrExpression?
         get() {
-            ensureTargetShapeInitialized()
-            return if (targetHasDispatchReceiver) {
-                arguments[0]
-            } else {
-                null
+            val hasDispatchReceiver = when (val target = symbol.owner) {
+                is IrFunction -> target.dispatchReceiverParameter != null
+                is IrProperty -> {
+                    val accessor = when (this) {
+                        is IrPropertyReference -> (getter ?: setter)?.getRealOwner()
+                        is IrLocalDelegatedPropertyReference -> getter.owner
+                        else -> error("Unexpected reference to a property from $this")
+                    }
+                    if (accessor != null) {
+                        accessor.dispatchReceiverParameter != null
+                    } else {
+                        val realProperty = target.resolveFakeOverrideMaybeAbstractOrFail()
+                        !realProperty.backingField!!.isStatic
+                    }
+                }
+                else -> error("Unexpected IrMemberAccessExpression symbol: $target")
             }
+            return if (hasDispatchReceiver) arguments[0] else null
         }
         set(value) {
             ensureTargetShapeInitialized()
