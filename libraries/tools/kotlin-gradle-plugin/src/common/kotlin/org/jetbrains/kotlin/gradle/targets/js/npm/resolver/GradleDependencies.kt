@@ -85,9 +85,6 @@ data class FileExternalGradleDependency(
  * Used to manually declare task dependencies for
  * [org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinPackageJsonTask].
  *
- * Deprecated because it is impractical to determine whether a dependency is on a composite build (see KT-74735).
- * Dependencies on composite builds will be treated as [ExternalGradleDependency].
- *
  * @see KotlinCompilationNpmResolver
  */
 data class CompositeDependency internal constructor(
