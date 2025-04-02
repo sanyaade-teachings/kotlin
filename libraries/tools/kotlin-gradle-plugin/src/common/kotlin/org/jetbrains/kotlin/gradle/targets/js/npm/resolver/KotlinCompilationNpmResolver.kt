@@ -294,14 +294,20 @@ class KotlinCompilationNpmResolver(
         }
 
         private fun visitCompositeProjectDependency(
-            componentIdentifier: ProjectComponentIdentifier,
+            identifier: ProjectComponentIdentifier,
         ) {
-            (componentIdentifier as DefaultProjectComponentIdentifier).let { identifier ->
-                val includedBuild = project.gradle.includedBuild(identifier.identityPath.topRealPath().name!!)
-                internalCompositeDependencies.add(
-                    CompositeDependency(includedBuild = includedBuild)
-                )
+            require(identifier is DefaultProjectComponentIdentifier) {
+                "Only DefaultProjectComponentIdentifier supported as composite dependency, got $identifier"
             }
+            val includedBuild = project.gradle.includedBuild(identifier.identityPath.topRealPath().name!!)
+            internalCompositeDependencies.add(
+                CompositeDependency(
+                    dependencyName = "", // deprecated, no longer used
+                    dependencyVersion = "",  // deprecated, no longer used
+                    includedBuildDir = includedBuild.projectDir,
+                    includedBuild = includedBuild,
+                )
+            )
         }
 
         private fun visitProjectDependency(

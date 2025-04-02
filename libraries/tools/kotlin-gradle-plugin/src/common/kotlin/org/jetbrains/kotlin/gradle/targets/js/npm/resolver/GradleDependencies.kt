@@ -87,21 +87,16 @@ data class FileExternalGradleDependency(
  *
  * @see KotlinCompilationNpmResolver
  */
-data class CompositeDependency internal constructor(
+data class CompositeDependency(
+    @Deprecated("No longer used. Schedule for removal in Kotlin 2.4.")
+    val dependencyName: String,
+    @Deprecated("No longer used. Schedule for removal in Kotlin 2.4.")
+    val dependencyVersion: String,
+    @Deprecated("No longer used. Schedule for removal in Kotlin 2.4.")
+    val includedBuildDir: File,
     @Transient
     val includedBuild: IncludedBuild?,
-) : Serializable {
-    @Deprecated("No longer used. Schedule for removal in Kotlin 2.4.")
-    @Suppress("UNUSED_PARAMETER")
-    constructor(
-        dependencyName: String,
-        dependencyVersion: String,
-        includedBuildDir: File,
-        includedBuild: IncludedBuild?,
-    ) : this(
-        includedBuild,
-    )
-}
+) : Serializable
 
 /**
  * _This is an internal KGP utility and should not be used in user buildscripts._
