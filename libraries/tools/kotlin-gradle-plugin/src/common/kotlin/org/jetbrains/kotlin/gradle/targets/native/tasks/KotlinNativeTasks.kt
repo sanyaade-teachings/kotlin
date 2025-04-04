@@ -174,7 +174,10 @@ abstract class AbstractKotlinNativeCompile<
 
     @get:Classpath
     override val libraries: ConfigurableFileCollection = objectFactory.fileCollection().from(
-        compilation.compileDependencyFiles
+        {
+            // Avoid resolving these dependencies during task graph construction when we can't build the target:
+            objectFactory.fileCollection().from({ compilation.compileDependencyFiles })
+        }
     )
 
     @get:Classpath
