@@ -51,6 +51,12 @@ public class JsIrInvalidationPerModuleTestGenerated extends AbstractJsIrInvalida
   }
 
   @Test
+  @TestMetadata("caseSensitiveModuleName")
+  public void testCaseSensitiveModuleName() {
+    runTest("js/js.translator/testData/incremental/invalidation/caseSensitiveModuleName/");
+  }
+
+  @Test
   @TestMetadata("circleExportsUpdate")
   public void testCircleExportsUpdate() {
     runTest("js/js.translator/testData/incremental/invalidation/circleExportsUpdate/");

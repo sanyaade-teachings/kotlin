@@ -400,7 +400,7 @@ fun List<JsIrModuleHeader>.merge(): JsIrModuleHeader {
 
         JsIrModuleHeader(
             firstModule.moduleName,
-            firstModule.externalModuleName.lowercase(),
+            firstModule.externalModuleName,
             definitions,
             nameBindings,
             optionalCrossModuleImports,
