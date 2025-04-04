@@ -172,24 +172,9 @@ abstract class AbstractKotlinNativeCompile<
     @get:Internal
     internal val konanDistribution = project.nativeProperties.actualNativeHomeDirectory
 
-    @get:Internal
-    internal val enabledOnCurrentHostForKlibCompilationProperty: Property<Boolean> = project.objects.property<Boolean>().convention(
-        // For KT-66452 we need to get rid of invocation of 'Task.project'.
-        // That is why we moved setting this property to task registration
-        // and added convention for backwards compatibility.
-        project.provider {
-            konanTarget.enabledOnCurrentHostForKlibCompilation(project.kotlinPropertiesProvider)
-        }
-    )
-
     @get:Classpath
     override val libraries: ConfigurableFileCollection = objectFactory.fileCollection().from(
-        {
-            // Avoid resolving these dependencies during task graph construction when we can't build the target:
-            if (enabledOnCurrentHostForKlibCompilationProperty.get())
-                objectFactory.fileCollection().from({ compilation.compileDependencyFiles })
-            else objectFactory.fileCollection()
-        }
+        compilation.compileDependencyFiles
     )
 
     @get:Classpath

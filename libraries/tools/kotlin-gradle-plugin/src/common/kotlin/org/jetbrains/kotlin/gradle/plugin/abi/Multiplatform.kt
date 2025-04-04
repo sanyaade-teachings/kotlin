@@ -90,7 +90,7 @@ private fun Project.processNonJvmTargets(
         .forEach { target ->
             val klibTarget = target.toKlibTarget()
 
-            if (targetIsSupported(target, kotlinPropertiesProvider) && klibTarget.configurableName !in bannedInTests) {
+            if (klibTarget.configurableName !in bannedInTests) {
                 target.compilations.withMainCompilationIfExists {
                     abiValidationTaskSet.addKlibTarget(klibTarget, output.classesDirs)
                 }

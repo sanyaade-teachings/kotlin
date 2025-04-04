@@ -555,9 +555,6 @@ internal class PropertiesProvider private constructor(private val project: Proje
     val enableMonotonousIncrementalCompileSetExpansion: Boolean
         get() = booleanProperty(PropertyNames.KOTLIN_MONOTONOUS_COMPILE_SET_EXPANSION) ?: true
 
-    val enableKlibsCrossCompilation: Boolean
-        get() = booleanProperty(PropertyNames.KOTLIN_NATIVE_ENABLE_KLIBS_CROSSCOMPILATION) ?: false
-
     val kotlinKmpProjectIsolationEnabled: Boolean
         get() {
             val mode = enumProperty<KmpIsolatedProjectsSupport>(
@@ -731,7 +728,6 @@ internal class PropertiesProvider private constructor(private val project: Proje
         val KOTLIN_APPLE_COCOAPODS_EXECUTABLE = property("kotlin.apple.cocoapods.bin")
         val KOTLIN_APPLE_ALLOW_EMBED_AND_SIGN_WITH_COCOAPODS = property("kotlin.apple.deprecated.allowUsingEmbedAndSignWithCocoaPodsDependencies")
         val KOTLIN_SWIFT_EXPORT_EXPERIMENTAL_NOWARN = property("kotlin.swift-export.experimental.nowarn")
-        val KOTLIN_NATIVE_ENABLE_KLIBS_CROSSCOMPILATION = property("kotlin.native.enableKlibsCrossCompilation")
         val KOTLIN_ARCHIVES_TASK_OUTPUT_AS_FRIEND_ENABLED = property("kotlin.build.archivesTaskOutputAsFriendModule")
         val KOTLIN_KMP_PUBLICATION_STRATEGY = property("kotlin.internal.kmp.kmpPublicationStrategy")
         val KOTLIN_KMP_RESOLUTION_STRATEGY = property("kotlin.internal.kmp.kmpResolutionStrategy")

@@ -1475,7 +1475,6 @@ public abstract class org/jetbrains/kotlin/gradle/plugin/mpp/KotlinNativeTarget 
 	public final fun getFRAMEWORK ()Lorg/jetbrains/kotlin/gradle/plugin/mpp/NativeOutputKind;
 	public final fun getKonanTarget ()Lorg/jetbrains/kotlin/konan/target/KonanTarget;
 	public fun getKotlinComponents ()Ljava/util/Set;
-	public fun getPublishable ()Z
 	public final fun getRELEASE ()Lorg/jetbrains/kotlin/gradle/plugin/mpp/NativeBuildType;
 	public final fun getSTATIC ()Lorg/jetbrains/kotlin/gradle/plugin/mpp/NativeOutputKind;
 }

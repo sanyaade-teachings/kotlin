@@ -70,11 +70,10 @@ class KotlinMetadataTargetConfigurator :
             // Do this after all targets are configured by the user build script
 
             val publishedCommonSourceSets: Set<KotlinSourceSet> = getCommonSourceSetsForMetadataCompilation(project)
-            val hostSpecificSourceSets: Set<KotlinSourceSet> = getHostSpecificSourceSets(project).toSet()
 
             val sourceSetsWithMetadataCompilations: Map<KotlinSourceSet, KotlinCompilation<*>> = publishedCommonSourceSets
                 .associateWith { sourceSet ->
-                    createMetadataCompilation(target, sourceSet, sourceSet in hostSpecificSourceSets)
+                    createMetadataCompilation(target, sourceSet)
                 }
                 .onEach { (sourceSet, compilation) ->
                     if (!isMetadataCompilationSupported(sourceSet)) {
@@ -155,10 +154,7 @@ class KotlinMetadataTargetConfigurator :
     private suspend fun createMetadataCompilation(
         target: KotlinMetadataTarget,
         sourceSet: KotlinSourceSet,
-        isHostSpecific: Boolean,
     ): KotlinCompilation<*> {
-        val project = target.project
-
         val compilationName = sourceSet.name
         val platformCompilations = sourceSet.internal.awaitPlatformCompilations()
         val isNativeSourceSet = sourceSet.isNativeSourceSet.await()
@@ -179,20 +175,6 @@ class KotlinMetadataTargetConfigurator :
             target.compilations.add(this@apply)
 
             configureMetadataDependenciesForCompilation(this@apply)
-
-            if (isHostSpecific) {
-                // This logic can be simplified, see KT-64523
-                val shouldBeDisabled = platformCompilations
-                    .filterIsInstance<KotlinNativeCompilation>()
-                    .none { it.konanTarget.enabledOnCurrentHostForKlibCompilation(project.kotlinPropertiesProvider) }
-                if (shouldBeDisabled) {
-                    // Then we don't have any platform module to put this compiled source set to, so disable the compilation task:
-                    compileTaskProvider.configure { it.enabled = false }
-                    // Also clear the dependency files (classpath) of the compilation so that the host-specific dependencies are
-                    // not resolved:
-                    compileDependencyFiles = project.files()
-                }
-            }
         }
     }
 

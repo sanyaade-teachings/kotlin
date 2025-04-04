@@ -174,13 +174,13 @@ internal class KotlinNativeFromToolchainProvider(
 }
 
 internal fun UsesKotlinNativeBundleBuildService.chooseKotlinNativeProvider(
-    enabledOnCurrenHost: Boolean,
+    enabledOnCurrenHost: Boolean = true,
     konanTarget: KonanTarget,
 ): KotlinNativeProvider {
-    if (enabledOnCurrenHost) {
-        return KotlinNativeFromToolchainProvider(project, konanTarget, kotlinNativeBundleBuildService)
+    return if (enabledOnCurrenHost) {
+        KotlinNativeFromToolchainProvider(project, konanTarget, kotlinNativeBundleBuildService)
     } else {
-        return NoopKotlinNativeProvider(project)
+        NoopKotlinNativeProvider(project)
     }
 }
 

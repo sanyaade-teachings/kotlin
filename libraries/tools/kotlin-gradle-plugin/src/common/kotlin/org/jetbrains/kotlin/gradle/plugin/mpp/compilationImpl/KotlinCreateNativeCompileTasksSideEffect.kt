@@ -17,7 +17,6 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginEnvironment
 import org.jetbrains.kotlin.gradle.plugin.launchInStage
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMetadataCompilation
-import org.jetbrains.kotlin.gradle.plugin.mpp.enabledOnCurrentHostForKlibCompilation
 import org.jetbrains.kotlin.gradle.targets.native.toolchain.chooseKotlinNativeProvider
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.gradle.tasks.dependsOn
@@ -41,9 +40,6 @@ internal val KotlinCreateNativeCompileTasksSideEffect = KotlinCompilationSideEff
         task.group = BasePlugin.BUILD_GROUP
         task.description = "Compiles a klibrary from the '${compilationInfo.compilationName}' " +
                 "compilation in target '${compilationInfo.targetDisambiguationClassifier}'."
-        val enabledOnCurrentHost =
-            compilation.konanTarget.enabledOnCurrentHostForKlibCompilation(project.kotlinPropertiesProvider)
-        task.enabled = enabledOnCurrentHost
 
         task.destinationDirectory.set(project.klibOutputDirectory(compilationInfo).dir("klib"))
         task.runViaBuildToolsApi.value(false).disallowChanges() // K/N is not yet supported
@@ -59,10 +55,7 @@ internal val KotlinCreateNativeCompileTasksSideEffect = KotlinCompilationSideEff
                 }
             }
         ).finalizeValueOnRead()
-        task.kotlinNativeProvider.set(task.chooseKotlinNativeProvider(enabledOnCurrentHost, task.konanTarget))
-        task.enabledOnCurrentHostForKlibCompilationProperty.set(project.provider {
-            task.konanTarget.enabledOnCurrentHostForKlibCompilation(project.kotlinPropertiesProvider)
-        })
+        task.kotlinNativeProvider.set(task.chooseKotlinNativeProvider(konanTarget = task.konanTarget))
         task.kotlinCompilerArgumentsLogLevel
             .value(project.kotlinPropertiesProvider.kotlinCompilerArgumentsLogLevel)
             .finalizeValueOnRead()

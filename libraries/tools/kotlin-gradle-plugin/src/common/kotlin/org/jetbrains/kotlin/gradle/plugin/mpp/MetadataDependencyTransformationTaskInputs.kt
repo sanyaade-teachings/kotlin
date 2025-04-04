@@ -66,13 +66,7 @@ internal class MetadataDependencyTransformationTaskInputs(
     @get:NormalizeLineEndings
     val hostSpecificMetadataConfigurationsToResolve: FileCollection = project.filesProvider {
         kotlinSourceSet.internal.compilations
-            .filter { compilation ->
-                if (compilation is KotlinNativeCompilation) {
-                    compilation.konanTarget.enabledOnCurrentHostForKlibCompilation(project.kotlinPropertiesProvider)
-                } else {
-                    true
-                }
-            }.mapNotNull { compilation ->
+            .mapNotNull { compilation ->
                 compilation
                     .internal
                     .configurations
