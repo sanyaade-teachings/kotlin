@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.internal.compilerRunner.native
 
 import com.google.gson.Gson
 import org.gradle.api.file.FileCollection
+import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
@@ -17,6 +18,8 @@ import org.jetbrains.kotlin.build.report.metrics.GradleBuildTime
 import org.jetbrains.kotlin.build.report.metrics.measure
 import org.jetbrains.kotlin.buildtools.internal.KotlinBuildToolsInternalJdkUtils
 import org.jetbrains.kotlin.buildtools.internal.getJdkClassesClassLoader
+import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments
+import org.jetbrains.kotlin.cli.common.arguments.argumentAnnotation
 import org.jetbrains.kotlin.compilerRunner.KotlinCompilerArgumentsLogLevel
 import org.jetbrains.kotlin.gradle.internal.ClassLoadersCachingBuildService
 import org.jetbrains.kotlin.gradle.internal.ParentClassLoaderProvider
@@ -42,6 +45,10 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
     private val fusMetricsConsumer: Provider<out BuildFusService<out BuildFusService.Parameters>>,
     private val execOperations: ExecOperations,
 ) {
+
+    companion object {
+        private val dumpPerfArgument = CommonCompilerArguments::dumpPerf.argumentAnnotation.value
+    }
     private val logger = Logging.getLogger(toolSpec.displayName.get())
     private val classLoadersCachingBuildService: ClassLoadersCachingBuildService
         get() = classLoadersCachingBuildServiceProvider.get()
@@ -71,9 +78,9 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
                 .escapeQuotesForWindows()
                 .toMap() + toolSpec.systemProperties
 
-            val reportFile = File.createTempFile("native_compiler_report", ".json")
+            val reportFile = File.createTempFile("native_compiler_${::runViaExec.name}_report", ".json")
             val reportArguments = if (toolSpec.collectNativeCompilerMetrics.get()) {
-                listOf("-Xdump-perf=${reportFile.absolutePath}")
+                listOf("$dumpPerfArgument=${reportFile.absolutePath}")
             } else emptyList()
 
             val toolArgsPair = if (toolSpec.shouldPassArgumentsViaArgFile.get()) {
@@ -111,7 +118,7 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
                     toolSpec.environmentBlacklist.forEach { spec.environment.remove(it) }
                     spec.args(toolArgsPair.second)
                 }
-                metricsReporter.parseCompilerMetricsFromFile(reportFile)
+                metricsReporter.parseCompilerMetricsFromFile(reportFile, logger)
             } finally {
                 toolArgsPair.first?.let {
                     try {
@@ -160,11 +167,11 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
 
                 metricsReporter.measure(GradleBuildTime.RUN_ENTRY_POINT) {
                     if (toolSpec.collectNativeCompilerMetrics.get()) {
-                        val reportFile = Files.createTempFile("compiler-native-report", ".json")
+                        val reportFile = Files.createTempFile("native_compiler_${::runInProcess.name}_report", ".json")
                         val toolArgsWithPerformance = toolArgs.toMutableList()
-                        toolArgsWithPerformance.add("-Xdump-perf=${reportFile.toAbsolutePath()}")
+                        toolArgsWithPerformance.add("$dumpPerfArgument=${reportFile.toAbsolutePath()}")
                         entryPoint.invoke(null, toolArgsWithPerformance.toTypedArray())
-                        metricsReporter.parseCompilerMetricsFromFile(reportFile.toFile())
+                        metricsReporter.parseCompilerMetricsFromFile(reportFile.toFile(), logger)
                     } else {
                         entryPoint.invoke(null, toolArgs.toTypedArray())
                     }
@@ -280,13 +287,17 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
     )
 }
 
-internal fun BuildMetricsReporter<GradleBuildTime, GradleBuildPerformanceMetric>.parseCompilerMetricsFromFile(file: File) {
-    if (!file.isFile()) return
-    val unitStats = Gson().fromJson(file.readText(), UnitStats::class.java)
+internal fun BuildMetricsReporter<GradleBuildTime, GradleBuildPerformanceMetric>.parseCompilerMetricsFromFile(jsonFile: File, logger: Logger) {
+    if (!jsonFile.isFile()) return
+    try {
+        val unitStats = Gson().fromJson(jsonFile.readText(), UnitStats::class.java)
 
-    unitStats.analysisStats?.millis?.also { addTimeMetricMs(GradleBuildTime.CODE_ANALYSIS, it) }
-    unitStats.initStats?.millis?.also { addTimeMetricMs(GradleBuildTime.COMPILER_INITIALIZATION, it) }
-    unitStats.translationToIrStats?.millis?.also { addTimeMetricMs(GradleBuildTime.TRANSLATION_TO_IR, it) }
-    unitStats.irLoweringStats?.millis?.also { addTimeMetricMs(GradleBuildTime.IR_LOWERING, it) }
-    unitStats.backendStats?.millis?.also { addTimeMetricMs(GradleBuildTime.BACKEND, it) }
+        unitStats?.analysisStats?.millis?.also { addTimeMetricMs(GradleBuildTime.CODE_ANALYSIS, it) }
+        unitStats?.initStats?.millis?.also { addTimeMetricMs(GradleBuildTime.COMPILER_INITIALIZATION, it) }
+        unitStats?.translationToIrStats?.millis?.also { addTimeMetricMs(GradleBuildTime.TRANSLATION_TO_IR, it) }
+        unitStats?.irLoweringStats?.millis?.also { addTimeMetricMs(GradleBuildTime.IR_LOWERING, it) }
+        unitStats?.backendStats?.millis?.also { addTimeMetricMs(GradleBuildTime.BACKEND, it) }
+    } catch (e: Exception) {
+        logger.warn("Failed to parse metrics from file ${jsonFile.absolutePath}", e)
+    }
 }

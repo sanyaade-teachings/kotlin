@@ -52,8 +52,7 @@ open class BuildMetricsReporterImpl<B : BuildTime, P : BuildPerformanceMetric> :
     override fun addTimeMetric(metric: P) {
         when (metric.getType()) {
             ValueType.NANOSECONDS -> myBuildMetrics.addLong(metric, System.nanoTime())
-            ValueType.MILLISECONDS -> myBuildMetrics.addLong(metric, System.currentTimeMillis())
-            ValueType.TIME -> myBuildMetrics.addLong(metric, System.currentTimeMillis())
+            ValueType.MILLISECONDS, ValueType.TIME -> myBuildMetrics.addLong(metric, System.currentTimeMillis())
             else -> error("Unable to add time metric for '${metric.getType()}' type")
         }
 
