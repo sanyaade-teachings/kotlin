@@ -26,11 +26,10 @@ internal fun ObjectFactory.KotlinNativeCInteropRunner(
     jvmArgs: Provider<List<String>>,
     useXcodeMessageStyle: Provider<Boolean>,
     konanPropertiesBuildService: Provider<KonanPropertiesBuildService>,
-    kotlinNativeVersion: Provider<String>,
 ): KotlinNativeToolRunner = newInstance(
     metricsReporter,
     classLoadersCachingBuildService,
-    kotlinToolSpec(isUseEmbeddableCompilerJar, actualNativeHomeDirectory, jvmArgs, useXcodeMessageStyle, konanPropertiesBuildService, kotlinNativeVersion),
+    kotlinToolSpec(isUseEmbeddableCompilerJar, actualNativeHomeDirectory, jvmArgs, useXcodeMessageStyle, konanPropertiesBuildService),
     property(BuildFusService::class.java)
 )
 
@@ -40,7 +39,6 @@ private fun ObjectFactory.kotlinToolSpec(
     jvmArgs: Provider<List<String>>,
     useXcodeMessageStyle: Provider<Boolean>,
     konanPropertiesBuildService: Provider<KonanPropertiesBuildService>,
-    kotlinNativeVersion: Provider<String>,
 ) = KotlinNativeToolRunner.ToolSpec(
     displayName = property("cinterop"),
     optionalToolName = property("cinterop"),
@@ -52,5 +50,5 @@ private fun ObjectFactory.kotlinToolSpec(
     systemProperties = nativeExecSystemProperties(useXcodeMessageStyle),
     environment = nativeExecLLVMEnvironment,
     environmentBlacklist = konanPropertiesBuildService.get().environmentBlacklist,
-    collectNativeCompilerMetrics = nativeCompilerPerformanceMetricsAvailable(kotlinNativeVersion)
+    collectNativeCompilerMetrics = property(false)
 ).configureDefaultMaxHeapSize().enableAssertions()

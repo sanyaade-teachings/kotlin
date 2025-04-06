@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.internal.compilerRunner.native
 
+import com.google.gson.Gson
 import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
@@ -24,8 +25,7 @@ import org.jetbrains.kotlin.gradle.plugin.statistics.BuildFusService
 import org.jetbrains.kotlin.gradle.plugin.statistics.NativeArgumentMetrics
 import org.jetbrains.kotlin.gradle.utils.escapeStringCharacters
 import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.util.PhaseType
-import org.jetbrains.kotlin.util.phaseDescription
+import org.jetbrains.kotlin.util.UnitStats
 import java.io.File
 import java.io.IOException
 import java.io.PrintWriter
@@ -71,7 +71,7 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
                 .escapeQuotesForWindows()
                 .toMap() + toolSpec.systemProperties
 
-            val reportFile = File.createTempFile("native_compiler_report", "txt")
+            val reportFile = File.createTempFile("native_compiler_report", ".json")
             val reportArguments = if (toolSpec.collectNativeCompilerMetrics.get()) {
                 listOf("-Xdump-perf=${reportFile.absolutePath}")
             } else emptyList()
@@ -160,7 +160,7 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
 
                 metricsReporter.measure(GradleBuildTime.RUN_ENTRY_POINT) {
                     if (toolSpec.collectNativeCompilerMetrics.get()) {
-                        val reportFile = Files.createTempFile("compiler-native-report", ".txt")
+                        val reportFile = Files.createTempFile("compiler-native-report", ".json")
                         val toolArgsWithPerformance = toolArgs.toMutableList()
                         toolArgsWithPerformance.add("-Xdump-perf=${reportFile.toAbsolutePath()}")
                         entryPoint.invoke(null, toolArgsWithPerformance.toTypedArray())
@@ -215,7 +215,7 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
             arguments.forEach { arg ->
                 writeArgumentIntoWriter(arg, w)
             }
-            additionalArguments.forEach { arg -> writeArgumentIntoWriter(arg, w)}
+            additionalArguments.forEach { arg -> writeArgumentIntoWriter(arg, w) }
         }
 
         return argFile
@@ -280,53 +280,13 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
     )
 }
 
-private fun PhaseType.toGradleBuildTime() = when (this) {
-    PhaseType.Initialization -> GradleBuildTime.COMPILER_INITIALIZATION
-    PhaseType.Analysis -> GradleBuildTime.CODE_ANALYSIS
-    PhaseType.TranslationToIr -> GradleBuildTime.TRANSLATION_TO_IR
-    PhaseType.IrLowering -> GradleBuildTime.IR_LOWERING
-    PhaseType.Backend -> GradleBuildTime.BACKEND
-}
-
-private fun PhaseType.toLpsGradleMetrics() = when (this) {
-    PhaseType.Analysis -> GradleBuildPerformanceMetric.ANALYSIS_LPS
-    PhaseType.TranslationToIr -> GradleBuildPerformanceMetric.TRANSLATION_TO_IR_LPS
-    PhaseType.IrLowering -> GradleBuildPerformanceMetric.IR_LOWERING_LPS
-    PhaseType.Backend -> GradleBuildPerformanceMetric.BACKEND_LPS
-    else -> null
-}
-
-private val pattern = "\\s*([A-z_\\s]*)\\s*(\\d*) ms(.*)".toRegex()
-private val locPerSecondPattern = "\\s*([0-9.]*) loc/s".toRegex()
-private val phases = PhaseType.values().associateBy { it.phaseDescription() }
-
 internal fun BuildMetricsReporter<GradleBuildTime, GradleBuildPerformanceMetric>.parseCompilerMetricsFromFile(file: File) {
     if (!file.isFile()) return
+    val unitStats = Gson().fromJson(file.readText(), UnitStats::class.java)
 
-    fun addLinePerSecondIfPresent(line: String, metricName: PhaseType?) {
-        if (line.isNotEmpty()) {
-            val locPerSecondMatchResult = locPerSecondPattern.matchEntire(line)
-            if (locPerSecondMatchResult != null) {
-                val locPerSecondValue = locPerSecondMatchResult.groupValues.getOrNull(1)?.toDoubleOrNull()
-                val lpsMetricName = metricName?.toLpsGradleMetrics()
-                if (lpsMetricName != null && locPerSecondValue != null) {
-                    //TODO Nataliya.Valtman, only Long performance metrics are supported right now
-                    addMetric(lpsMetricName, locPerSecondValue.toLong())
-                }
-            }
-        }
-    }
-
-    file.forEachLine { line ->
-        val matchResult = pattern.matchEntire(line)
-        if (matchResult != null) {
-            val metricName = matchResult.groupValues.getOrNull(1).let { phases[it?.trim()] }
-            val value = matchResult.groupValues.getOrNull(2)?.toLongOrNull()
-            if (metricName != null && value != null) {
-                addTimeMetricMs(metricName.toGradleBuildTime(), value)
-            }
-
-            addLinePerSecondIfPresent(matchResult.groupValues.getOrNull(3).orEmpty(), metricName)
-        }
-    }
+    unitStats.analysisStats?.millis?.also { addTimeMetricMs(GradleBuildTime.CODE_ANALYSIS, it) }
+    unitStats.initStats?.millis?.also { addTimeMetricMs(GradleBuildTime.COMPILER_INITIALIZATION, it) }
+    unitStats.translationToIrStats?.millis?.also { addTimeMetricMs(GradleBuildTime.TRANSLATION_TO_IR, it) }
+    unitStats.irLoweringStats?.millis?.also { addTimeMetricMs(GradleBuildTime.IR_LOWERING, it) }
+    unitStats.backendStats?.millis?.also { addTimeMetricMs(GradleBuildTime.BACKEND, it) }
 }

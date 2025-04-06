@@ -1173,7 +1173,6 @@ abstract class CInteropProcess @Inject internal constructor(params: Params) :
     private val actualNativeHomeDirectory = project.nativeProperties.actualNativeHomeDirectory
     private val runnerJvmArgs = project.nativeProperties.jvmArgs
     private val useXcodeMessageStyle = project.useXcodeMessageStyle
-    private val simpleKotlinNativeVersion = project.nativeProperties.kotlinNativeVersion
 
     private val cinteropRunner: KotlinNativeToolRunner
         get() = objectFactory.KotlinNativeCInteropRunner(
@@ -1184,7 +1183,6 @@ abstract class CInteropProcess @Inject internal constructor(params: Params) :
             runnerJvmArgs,
             useXcodeMessageStyle,
             konanPropertiesService,
-            simpleKotlinNativeVersion
         )
 
     // Inputs and outputs.
