@@ -39,8 +39,8 @@ class SerializableCompanionIrGenerator(
                 if (serializableIrClass.isSerializableObject) serializableIrClass else serializableIrClass.companionObject() ?: return null
             return irClass.findDeclaration<IrSimpleFunction> {
                 it.name == name
-                        && it.valueParameters.size == serializableIrClass.typeParameters.size
-                        && it.valueParameters.all { p -> p.type.isKSerializer() }
+                        && it.nonDispatchParameters.size == serializableIrClass.typeParameters.size
+                        && it.nonDispatchParameters.all { p -> p.type.isKSerializer() }
                         && it.returnType.isKSerializer()
             }
         }
@@ -179,7 +179,7 @@ class SerializableCompanionIrGenerator(
 
     private fun generateSerializerGetter(serializer: IrClassSymbol, methodDescriptor: IrSimpleFunction) {
         addFunctionBody(methodDescriptor) { getter ->
-            val args: List<IrExpression> = getter.valueParameters.map { irGet(it) }
+            val args: List<IrExpression> = getter.nonDispatchParameters.map { irGet(it) }
             val expr = serializerInstance(serializer, compilerContext, serializableIrClass.defaultType) { it, _ -> args[it] }
             +irReturn(requireNotNull(expr))
         }
@@ -188,8 +188,8 @@ class SerializableCompanionIrGenerator(
     private fun getOrCreateSerializerVarargFactory(): IrSimpleFunction {
         irClass.findDeclaration<IrSimpleFunction> {
             it.name == SerialEntityNames.SERIALIZER_PROVIDER_NAME
-                    && it.valueParameters.size == 1
-                    && it.valueParameters.first().isVararg
+                    && it.hasShape(dispatchReceiver = true, regularParameters = 1)
+                    && it.parameters[1].isVararg
                     && it.returnType.isKSerializer()
                     && it.isFromPlugin(compilerContext.afterK2)
         }?.let { return it }
@@ -213,7 +213,7 @@ class SerializableCompanionIrGenerator(
         val serialFactoryDescriptor = getOrCreateSerializerVarargFactory()
         addFunctionBody(serialFactoryDescriptor) { factory ->
             val kSerializerStarType = factory.returnType
-            val array = factory.valueParameters.first()
+            val array = factory.parameters[1]
             val argsSize = serializableIrClass.typeParameters.size
             val arrayGet = compilerContext.irBuiltIns.arrayClass.owner.declarations.filterIsInstance<IrSimpleFunction>()
                 .single { it.name.asString() == "get" }
