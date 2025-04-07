@@ -141,11 +141,10 @@ class SerializationJvmIrIntrinsicSupport(
     override fun getIntrinsic(symbol: IrFunctionSymbol): IntrinsicMethod? {
         val method = symbol.owner
         if (!method.isTargetMethod()
-            || method.dispatchReceiverParameter != null
+            || method.parameters.size !in 0..1
             || method.typeParameters.size != 1
-            || method.valueParameters.isNotEmpty()
         ) return null
-        val receiver = method.extensionReceiverParameter
+        val receiver = method.parameters.getOrNull(0)
         return if (receiver == null)
             ReifiedSerializerMethod(withModule = false)
         else if (receiver.type.classFqName?.asString() == "kotlinx.serialization.modules.SerializersModule")
