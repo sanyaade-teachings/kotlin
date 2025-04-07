@@ -709,7 +709,10 @@ public final class org/jetbrains/kotlin/gradle/dsl/abi/AbiFiltersSpec$DefaultImp
 }
 
 public abstract interface class org/jetbrains/kotlin/gradle/dsl/abi/AbiValidationExtension : org/jetbrains/kotlin/gradle/dsl/abi/AbiValidationVariantSpec {
-	public abstract fun getVariants ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public abstract fun configureAllVariants (Lorg/gradle/api/Action;)V
+	public abstract fun configureVariant (Ljava/lang/String;Lorg/gradle/api/Action;)V
+	public abstract fun createVariant (Ljava/lang/String;)V
+	public abstract fun createVariant (Ljava/lang/String;Lorg/gradle/api/Action;)V
 }
 
 public final class org/jetbrains/kotlin/gradle/dsl/abi/AbiValidationExtension$DefaultImpls {
@@ -730,7 +733,10 @@ public abstract interface class org/jetbrains/kotlin/gradle/dsl/abi/AbiValidatio
 }
 
 public abstract interface class org/jetbrains/kotlin/gradle/dsl/abi/AbiValidationMultiplatformExtension : org/jetbrains/kotlin/gradle/dsl/abi/AbiValidationMultiplatformVariantSpec {
-	public abstract fun getVariants ()Lorg/gradle/api/NamedDomainObjectContainer;
+	public abstract fun configureAllVariants (Lorg/gradle/api/Action;)V
+	public abstract fun configureVariant (Ljava/lang/String;Lorg/gradle/api/Action;)V
+	public abstract fun createVariant (Ljava/lang/String;)V
+	public abstract fun createVariant (Ljava/lang/String;Lorg/gradle/api/Action;)V
 }
 
 public final class org/jetbrains/kotlin/gradle/dsl/abi/AbiValidationMultiplatformExtension$DefaultImpls {

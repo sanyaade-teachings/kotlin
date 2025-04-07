@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.gradle.internal.abi
 
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.ProjectLayout
@@ -27,8 +28,27 @@ internal abstract class AbiValidationExtensionImpl @Inject constructor(
     objects: ObjectFactory,
     tasks: TaskContainer,
 ) : AbiValidationVariantSpecImpl(AbiValidationVariantSpec.MAIN_VARIANT_NAME, objects, tasks), AbiValidationExtension {
+    internal val variants: VariantConfiguratorImpl = objects.newInstance<VariantConfiguratorImpl>(projectName, layout, objects, tasks)
 
-    final override val variants: VariantConfiguratorImpl = objects.newInstance<VariantConfiguratorImpl>(projectName, layout, objects, tasks)
+    @ExperimentalAbiValidation
+    override fun createVariant(name: String) {
+        variants.register(name)
+    }
+
+    @ExperimentalAbiValidation
+    override fun createVariant(name: String, action: Action<AbiValidationVariantSpec>) {
+        variants.register(name, action)
+    }
+
+    @ExperimentalAbiValidation
+    override fun configureVariant(name: String, action: Action<AbiValidationVariantSpec>) {
+        variants.named(name, action)
+    }
+
+    @ExperimentalAbiValidation
+    override fun configureAllVariants(action: Action<AbiValidationVariantSpec>) {
+        variants.configureEach(action)
+    }
 }
 
 internal fun ExtensionContainer.createAbiValidationExtension(project: Project): AbiValidationExtension {
@@ -82,9 +102,28 @@ internal abstract class AbiValidationMultiplatformExtensionImpl @Inject construc
 ) : AbiValidationMultiplatformVariantSpecImpl(AbiValidationVariantSpec.MAIN_VARIANT_NAME, objects, tasks),
     AbiValidationMultiplatformExtension {
 
-    override val variants: MultiplatformVariantConfiguratorImpl =
+    internal val variants: MultiplatformVariantConfiguratorImpl =
         objects.newInstance<MultiplatformVariantConfiguratorImpl>(projectName, layout, objects, tasks)
 
+    @ExperimentalAbiValidation
+    override fun createVariant(name: String) {
+        variants.register(name)
+    }
+
+    @ExperimentalAbiValidation
+    override fun createVariant(name: String, action: Action<AbiValidationMultiplatformVariantSpec>) {
+        variants.register(name, action)
+    }
+
+    @ExperimentalAbiValidation
+    override fun configureVariant(name: String, action: Action<AbiValidationMultiplatformVariantSpec>) {
+        variants.named(name, action)
+    }
+
+    @ExperimentalAbiValidation
+    override fun configureAllVariants(action: Action<AbiValidationMultiplatformVariantSpec>) {
+        variants.configureEach(action)
+    }
 
     override val klib: AbiValidationKlibKindExtension = objects.AbiValidationKlibKindExtension()
 }
