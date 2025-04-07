@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.fromSymbolOwner
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.types.defaultType
@@ -177,7 +176,7 @@ class SerializableCompanionIrGenerator(
         }
 
         addFunctionBody(methodDescriptor) {
-            +irReturn(irInvoke(irGet(it.dispatchReceiverParameter!!), property.getter!!.symbol))
+            +irReturn(irInvoke(property.getter!!.symbol, irGet(it.dispatchReceiverParameter!!)))
         }
     }
 
@@ -223,14 +222,13 @@ class SerializableCompanionIrGenerator(
                 .single { it.name.asString() == "get" }
 
             val serializers: List<IrExpression> = (0 until argsSize).map {
-                irInvoke(irGet(array), arrayGet.symbol, irInt(it), typeHint = kSerializerStarType)
+                irInvoke(arrayGet.symbol, irGet(array), irInt(it), returnTypeHint = kSerializerStarType)
             }
             val serializerCall = getterDescriptor.symbol
             val call = irInvoke(
-                IrGetValueImpl(startOffset, endOffset, factory.dispatchReceiverParameter!!.symbol),
                 serializerCall,
+                listOf(irGet(factory.dispatchReceiverParameter!!)) + serializers,
                 List(argsSize) { compilerContext.irBuiltIns.anyNType },
-                serializers,
                 returnTypeHint = kSerializerStarType
             )
             +irReturn(call)

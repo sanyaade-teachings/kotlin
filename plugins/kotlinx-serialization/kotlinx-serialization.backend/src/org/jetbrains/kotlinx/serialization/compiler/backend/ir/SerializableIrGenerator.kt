@@ -158,7 +158,7 @@ class SerializableIrGenerator(
                         statementsAfterSerializableProperty[prop.ir]?.forEach { +it }
                         continue
                     } else {
-                        irThrow(irInvoke(null, exceptionCtorRef, irString(prop.name), typeHint = exceptionType))
+                        irThrow(irInvoke(exceptionCtorRef, irString(prop.name), returnTypeHint = exceptionType))
                     }
                 }
 
@@ -228,7 +228,7 @@ class SerializableIrGenerator(
         val classConstructors = serialDescriptorImplClass.constructors
         val serialClassDescImplCtor = classConstructors.single { it.isPrimary }.symbol
         return irInvoke(
-            null, serialClassDescImplCtor,
+            serialClassDescImplCtor,
             irString(irClass.serialName()), irNull(), irInt(properties.serializableProperties.size)
         )
     }
@@ -238,11 +238,11 @@ class SerializableIrGenerator(
         serialDescVar: IrVariable
     ): IrExpression {
         return irInvoke(
-            irGet(serialDescVar),
             addElementFun,
+            irGet(serialDescVar),
             irString(property.name),
             irBoolean(property.optional),
-            typeHint = compilerContext.irBuiltIns.unitType
+            returnTypeHint = compilerContext.irBuiltIns.unitType
         )
     }
 
@@ -348,7 +348,7 @@ class SerializableIrGenerator(
                             irGet(writeSelfFunction.valueParameters[3 + it])
                         }!!
                     }
-                    +irInvoke(null, superWriteSelfF.symbol, typeArgsForParent.map { it.typeOrNull!! }, args + parentWriteSelfSerializers)
+                    +irInvoke(superWriteSelfF.symbol, args + parentWriteSelfSerializers, typeArgsForParent.map { it.typeOrNull!! })
                 }
             }
 
