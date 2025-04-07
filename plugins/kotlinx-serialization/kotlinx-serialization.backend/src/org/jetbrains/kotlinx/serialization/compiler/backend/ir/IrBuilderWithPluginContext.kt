@@ -128,7 +128,7 @@ interface IrBuilderWithPluginContext {
         }
 
         getter.apply {
-            dispatchReceiverParameter = containingClass.thisReceiver!!.copyTo(this, type = containingClass.defaultType)
+            parameters = listOf(containingClass.thisReceiver!!.copyTo(this, type = containingClass.defaultType))
             body = compilerContext.irBuiltIns.createIrBuilder(symbol, containingClass.startOffset, containingClass.endOffset).irBlockBody {
                 +irReturn(
                     irInvoke(
@@ -373,8 +373,8 @@ interface IrBuilderWithPluginContext {
         }
 
         getter.apply {
-            if (dispatchReceiverParameter == null)
-                dispatchReceiverParameter = propertyParent.thisReceiver!!.copyTo(this, type = propertyParent.defaultType)
+            if (parameters.isEmpty())
+                parameters = listOf(propertyParent.thisReceiver!!.copyTo(this, type = propertyParent.defaultType))
             if (body == null)
                 body = compilerContext.irBuiltIns.createIrBuilder(symbol, propertyParent.startOffset, propertyParent.endOffset).irBlockBody {
                         +irReturn(irGetField(irGet(dispatchReceiverParameter!!), field))
