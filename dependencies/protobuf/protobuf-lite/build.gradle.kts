@@ -39,8 +39,6 @@ val prepare = tasks.register<ShadowJar>("prepare") {
     }
 }
 
-artifacts.add("default", prepare)
-
 val relocateSources = task<Copy>("relocateSources") {
     from(
         provider {
@@ -60,8 +58,6 @@ val prepareSources = task<Jar>("prepareSources") {
     archiveClassifier.set("sources")
     from(relocateSources)
 }
-
-artifacts.add("default", prepareSources)
 
 publishing {
     publications {
