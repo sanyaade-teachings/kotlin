@@ -110,7 +110,7 @@ class SerializableIrGenerator(
             val exceptionType = exceptionCtorRef.owner.returnType
 
             val seenVarsOffset = serializableProperties.bitMaskSlotCount()
-            val seenVars = (0 until seenVarsOffset).map { ctor.valueParameters[it] }
+            val seenVars = (0 until seenVarsOffset).map { ctor.parameters[it] }
 
 
             val superClass = irClass.getSuperClassOrAny()
@@ -133,7 +133,7 @@ class SerializableIrGenerator(
             when {
                 superClass.symbol == compilerContext.irBuiltIns.anyClass -> generateAnySuperConstructorCall(toBuilder = this@addFunctionBody)
                 superClass.shouldHaveGeneratedMethods() -> {
-                    startPropOffset = generateSuperSerializableCall(superClass, ctor.valueParameters, seenVarsOffset)
+                    startPropOffset = generateSuperSerializableCall(superClass, ctor.parameters, seenVarsOffset)
                 }
                 else -> generateSuperNonSerializableCall(superClass)
             }
@@ -141,7 +141,7 @@ class SerializableIrGenerator(
             statementsAfterSerializableProperty[null]?.forEach { +it }
             for (index in startPropOffset until serializableProperties.size) {
                 val prop = serializableProperties[index]
-                val paramRef = ctor.valueParameters[index + seenVarsOffset]
+                val paramRef = ctor.parameters[index + seenVarsOffset]
                 // Assign this.a = a in else branch
                 // Set field directly w/o setter to match behavior of old backend plugin
                 val backingFieldToAssign = prop.ir.backingField!!
