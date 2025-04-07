@@ -202,12 +202,12 @@ class Fir2IrClassifierStorage(
      *
      * But on the first FIR2IR stage this API should not be used
      */
-    fun getIrClass(firClass: FirClass): IrClass {
+    fun getIrClass(firClass: FirClass, outerFirClassSymbol: FirClassSymbol<*>? = null): IrClass {
         getCachedIrClass(firClass)?.let { return it }
         if (firClass is FirAnonymousObject || firClass is FirRegularClass && firClass.visibility == Visibilities.Local) {
             return createAndCacheLocalIrClassOnTheFly(firClass)
         }
-        return createFir2IrLazyClass(firClass)
+        return createFir2IrLazyClass(firClass, outerFirClassSymbol)
     }
 
     /**
@@ -219,15 +219,14 @@ class Fir2IrClassifierStorage(
     fun getFir2IrLazyClass(firClass: FirClass): Fir2IrLazyClass =
         getCachedIrClass(firClass)?.let { it as Fir2IrLazyClass } ?: createFir2IrLazyClass(firClass)
 
-    private fun createFir2IrLazyClass(firClass: FirClass): Fir2IrLazyClass {
+    private fun createFir2IrLazyClass(firClass: FirClass, outerFirClassSymbol: FirClassSymbol<*>? = null): Fir2IrLazyClass {
         require(firClass is FirRegularClass)
         val symbol = createClassSymbol()
         val classId = firClass.symbol.classId
-        val parentId = classId.outerClassId
-        val parentClass = parentId?.let { session.symbolProvider.getClassLikeSymbolByClassId(it) }
+        val parentClassSymbol = outerFirClassSymbol ?: classId.outerClassId?.let { session.symbolProvider.getClassLikeSymbolByClassId(it) }
         val irParent = declarationStorage.findIrParent(
             classId.packageFqName,
-            parentClass?.toLookupTag(),
+            parentClassSymbol?.toLookupTag(),
             firClass.symbol,
             firClass.origin
         )!!
@@ -253,8 +252,8 @@ class Fir2IrClassifierStorage(
         return getCachedIrLocalClass(klass) ?: classCache[klass]?.owner
     }
 
-    fun getIrClassSymbol(firClassSymbol: FirClassSymbol<*>): IrClassSymbol {
-        return getIrClass(firClassSymbol.fir).symbol
+    fun getIrClassSymbol(firClassSymbol: FirClassSymbol<*>, outerClassFirSymbol: FirClassSymbol<*>? = null): IrClassSymbol {
+        return getIrClass(firClassSymbol.fir, outerClassFirSymbol).symbol
     }
 
     fun getIrClassSymbol(lookupTag: ConeClassLikeLookupTag): IrClassSymbol? {
