@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.util.OperatorNameConventions
+import org.jetbrains.kotlin.utils.addToStdlib.butIf
 import org.jetbrains.kotlin.utils.getOrPutNullable
 import org.jetbrains.kotlinx.serialization.compiler.extensions.SerializationPluginContext
 import org.jetbrains.kotlinx.serialization.compiler.resolve.*
@@ -105,7 +106,7 @@ class SerializableIrGenerator(
             // Missing field exception parts
             val exceptionCtorRef =
                 compilerContext.referenceConstructors(ClassId(SerializationPackages.packageFqName, Name.identifier(MISSING_FIELD_EXC)))
-                    .single { it.owner.valueParameters.singleOrNull()?.type?.isString() == true }
+                    .single { it.owner.hasShape(regularParameters = 1, parameterTypes = listOf(context.irBuiltIns.stringType)) }
             val exceptionType = exceptionCtorRef.owner.returnType
 
             val seenVarsOffset = serializableProperties.bitMaskSlotCount()
