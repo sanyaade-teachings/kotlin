@@ -131,14 +131,14 @@ fun IrClass.hasSerializableOrMetaAnnotation() = checkSerializableOrMetaAnnotatio
 
 private fun IrClass.hasSerializableAnnotationWithArgs(): Boolean {
     val annot = getAnnotation(SerializationAnnotations.serializableAnnotationFqName)
-    return annot?.getValueArgument(0) != null
+    return annot?.arguments[0] != null
 }
 
 private fun IrClass.checkSerializableOrMetaAnnotationArgs(mustDoNotHaveArgs: Boolean): Boolean {
     val annot = getAnnotation(SerializationAnnotations.serializableAnnotationFqName)
     if (annot != null) { // @Serializable have higher priority
         if (!mustDoNotHaveArgs) return true
-        if (annot.getValueArgument(0) != null) return false
+        if (annot.arguments[0] != null) return false
         return true
     }
     return annotations
@@ -273,7 +273,7 @@ val IrClass.primaryConstructorOrFail get() = primaryConstructor ?: error("$this 
  */
 fun IrProperty.getEncodeDefaultAnnotationValue(): Boolean? {
     val call = annotations.findAnnotation(SerializationAnnotations.encodeDefaultFqName) ?: return null
-    val arg = call.getValueArgument(0) ?: return true // ALWAYS by default
+    val arg = call.arguments[0] ?: return true // ALWAYS by default
     val argValue = (arg as? IrGetEnumValue
         ?: error("Argument of enum constructor expected to implement IrGetEnumValue, got $arg")).symbol.owner.name.toString()
     return when (argValue) {
