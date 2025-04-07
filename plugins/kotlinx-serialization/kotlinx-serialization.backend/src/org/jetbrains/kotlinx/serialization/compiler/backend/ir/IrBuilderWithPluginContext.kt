@@ -228,7 +228,7 @@ interface IrBuilderWithPluginContext {
         val typeArguments = listOf(arrayElementType)
 
         return irCall(compilerContext.irBuiltIns.arrayOf, arrayType, typeArguments = typeArguments).apply {
-            putValueArgument(0, arg0)
+            arguments[0] = arg0
         }
     }
 
@@ -237,7 +237,7 @@ interface IrBuilderWithPluginContext {
         val arrayType = compilerContext.intArrayOfFunctionSymbol.owner.returnType
         val arg0 = IrVarargImpl(startOffset, endOffset, arrayType, elementType, arrayElements)
         return irCall(compilerContext.intArrayOfFunctionSymbol, arrayType).apply {
-            putValueArgument(0, arg0)
+            arguments[0] = arg0
         }
     }
 
