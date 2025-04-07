@@ -79,7 +79,7 @@ class SerializationJvmIrIntrinsicSupport(
             with(codegen) {
                 val argument = expression.typeArguments[0]!!
                 val intrinsicType = if (withModule) {
-                    val moduleReceiver = expression.extensionReceiver!!
+                    val moduleReceiver = expression.arguments[0]!!
                     val materialVal = moduleReceiver.accept(codegen, data).materializedAt(moduleReceiver.type)
                     val storedIndex = frameMap.enterTemp(materialVal.type)
                     mv.store(storedIndex, materialVal.type)
