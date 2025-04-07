@@ -531,7 +531,6 @@ open class SerializerIrGenerator(
             generateGoldenMaskCheck(bitMasks, properties, localSerialDesc.get())
 
             val ctor: IrConstructorSymbol = serializableIrClass.primaryConstructorOrFail.symbol
-            val params = ctor.owner.valueParameters
 
             val variableByParamReplacer: (ValueParameterDescriptor) -> IrExpression? = { vpd ->
                 val propertyDescriptor = serializableIrClass.properties.find { it.name == vpd.name }
@@ -546,7 +545,7 @@ open class SerializerIrGenerator(
                 createInitializerAdapter(serializableIrClass, variableByParamReplacer)
 
             // constructor args:
-            val ctorArgs = params.map { parameter ->
+            val ctorArgs = ctor.owner.parameters.map { parameter ->
                 val propertyDescriptor = serializableIrClass.properties.find { it.name == parameter.name }!!
                 val serialProperty = serialPropertiesMap[propertyDescriptor]
 
