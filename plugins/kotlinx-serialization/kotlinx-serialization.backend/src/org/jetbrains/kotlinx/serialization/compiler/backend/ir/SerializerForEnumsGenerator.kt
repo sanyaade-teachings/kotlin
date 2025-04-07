@@ -36,8 +36,8 @@ class SerializerForEnumsGenerator(
 
         val serializableIrClass = requireNotNull(serializableIrClass) { "Enums do not support external serialization" }
         val ordinalProp = serializableIrClass.properties.single { it.name == Name.identifier("ordinal") }.getter!!
-        val getOrdinal = irInvoke(ordinalProp.symbol, irGet(saveFunc.valueParameters[1]))
-        val call = irInvoke(encodeEnum, irGet(saveFunc.valueParameters[0]), serialDescGetter, getOrdinal)
+        val getOrdinal = irInvoke(ordinalProp.symbol, irGet(saveFunc.parameters[2]))
+        val call = irInvoke(encodeEnum, irGet(saveFunc.parameters[1]), serialDescGetter, getOrdinal)
         +call
     }
 
@@ -61,7 +61,7 @@ class SerializerForEnumsGenerator(
             irInvoke(
                 arrayGet.symbol,
                 getValues,
-                irInvoke(decode, irGet(loadFunc.valueParameters[0]), serialDescGetter),
+                irInvoke(decode, irGet(loadFunc.parameters[1]), serialDescGetter),
                 returnTypeHint = this@SerializerForEnumsGenerator.serializableIrClass.defaultType
             )
         +irReturn(getValueByOrdinal)
