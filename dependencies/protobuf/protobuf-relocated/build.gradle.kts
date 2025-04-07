@@ -28,11 +28,7 @@ val prepare = tasks.register<ShadowJar>("prepare") {
     destinationDirectory.set(File(outputJarsPath))
     archiveVersion.set(protobufVersion)
     archiveClassifier.set("")
-    from(
-        provider {
-            baseProtobuf.files.find { it.name.startsWith("protobuf-java") }?.canonicalPath
-        }
-    )
+    from(baseProtobuf)
 
     relocate("com.google.protobuf", "org.jetbrains.kotlin.protobuf" ) {
         exclude("META-INF/maven/com.google.protobuf/protobuf-java/pom.properties")
