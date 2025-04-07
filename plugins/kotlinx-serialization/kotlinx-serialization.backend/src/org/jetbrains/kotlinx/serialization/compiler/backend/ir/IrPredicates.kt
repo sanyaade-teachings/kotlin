@@ -211,7 +211,7 @@ internal fun IrDeclaration.isFromPlugin(afterK2: Boolean): Boolean =
 
 internal fun IrConstructor.isSerializationCtor(): Boolean {
     /*kind == CallableMemberDescriptor.Kind.SYNTHESIZED does not work because DeserializedClassConstructorDescriptor loses its kind*/
-    return valueParameters.lastOrNull()?.run {
+    return nonDispatchParameters.lastOrNull()?.run {
         name == SerialEntityNames.dummyParamName && type.classFqName == SerializationPackages.internalPackageFqName.child(
             SerialEntityNames.SERIAL_CTOR_MARKER_NAME
         )
@@ -220,7 +220,7 @@ internal fun IrConstructor.isSerializationCtor(): Boolean {
 
 
 internal fun IrConstructor.lastArgumentIsAnnotationArray(): Boolean {
-    val lastArgType = valueParameters.lastOrNull()?.type
+    val lastArgType = nonDispatchParameters.lastOrNull()?.type
     if (lastArgType == null || !lastArgType.isArray()) return false
     return ((lastArgType as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull?.classFqName?.toString() == "kotlin.Annotation")
 }
@@ -288,7 +288,7 @@ fun findSerializerConstructorForTypeArgumentsSerializers(serializer: IrClass): I
     if (typeParamsCount == 0) return null //don't need it
 
     return serializer.constructors.singleOrNull {
-        it.valueParameters.let { vps -> vps.size == typeParamsCount && vps.all { vp -> vp.type.isKSerializer() } }
+        it.parameters.let { vps -> vps.size == typeParamsCount && vps.all { vp -> vp.type.isKSerializer() } }
     }?.symbol
 }
 
