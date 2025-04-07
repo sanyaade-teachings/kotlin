@@ -576,7 +576,8 @@ abstract class BaseIrGenerator(private val currentClass: IrClass, final override
                 args = listOf(classReference(kType.classOrUpperBound()!!))
                 typeArgs = listOf(kType)
 
-                val hasNewCtxSerCtor = compilerContext.referenceConstructors(contextSerializerId).any { it.owner.valueParameters.size == 3 }
+                val hasNewCtxSerCtor = compilerContext.referenceConstructors(contextSerializerId)
+                    .any { it.owner.hasShape(regularParameters = 3) }
 
                 if (hasNewCtxSerCtor) {
                     // new signature of context serializer
