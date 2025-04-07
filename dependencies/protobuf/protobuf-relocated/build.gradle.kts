@@ -38,8 +38,7 @@ val prepare = tasks.register<ShadowJar>("prepare") {
 val relocateSources = task<Copy>("relocateSources") {
     from(
         provider {
-            zipTree(baseProtobufSources.files.find { it.name.startsWith("protobuf-java") && it.name.endsWith("-sources.jar") }
-                        ?: throw GradleException("sources jar not found among ${baseProtobufSources.files}"))
+            zipTree(baseProtobufSources.files.single())
         }
     )
 
