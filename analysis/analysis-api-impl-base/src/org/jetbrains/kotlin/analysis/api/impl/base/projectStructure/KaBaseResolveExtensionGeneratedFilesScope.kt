@@ -8,11 +8,13 @@ package org.jetbrains.kotlin.analysis.api.impl.base.projectStructure
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.kotlin.analysis.api.KaImplementationDetail
 import org.jetbrains.kotlin.analysis.api.platform.projectStructure.isGeneratedByResolveExtensions
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaModule
 import org.jetbrains.kotlin.analysis.api.projectStructure.analysisContextModule
 
-internal class KaBaseResolveExtensionGeneratedFilesScope(val useSiteModules: List<KaModule>) : KaResolveExtensionGeneratedFilesScope() {
+@KaImplementationDetail
+class KaBaseResolveExtensionGeneratedFilesScope(val useSiteModules: List<KaModule>) : KaResolveExtensionGeneratedFilesScope() {
     override fun isSearchInModuleContent(aModule: Module): Boolean = false
 
     override fun isSearchInLibraries(): Boolean = false
