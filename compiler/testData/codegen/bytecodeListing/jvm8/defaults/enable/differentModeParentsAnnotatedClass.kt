@@ -1,5 +1,4 @@
 // WITH_STDLIB
-// IGNORE_BACKEND_K1: JVM_IR
 // Check that methods are generated only in interface-disabled, class-noCompatibility case
 
 // MODULE: libdisable
