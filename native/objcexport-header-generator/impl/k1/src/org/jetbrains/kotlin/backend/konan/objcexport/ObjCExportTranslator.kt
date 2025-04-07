@@ -556,6 +556,9 @@ class ObjCExportTranslatorImpl(
         if (propertySetter != null && mapper.shouldBeExposed(propertySetter)) {
             val setterSelector = mapper.getBaseMethods(propertySetter).map { namer.getSelector(it) }.distinct().single()
             setterName = if (setterSelector != "set" + name.replaceFirstChar(Char::uppercaseChar) + ":") setterSelector else null
+            if (type is ObjCClassType) {
+                attributes += "strong"
+            }
         } else {
             attributes += "readonly"
             setterName = null
