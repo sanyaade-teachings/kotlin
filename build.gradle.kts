@@ -733,7 +733,7 @@ val syncMutedTests = tasks.register("syncMutedTests") {
 tasks.register("createIdeaHomeForTests") {
     val ideaBuildNumberFileForTests = ideaBuildNumberFileForTests()
     val intellijSdkVersion = rootProject.extra["versions.intellijSdk"]
-    outputs.file(ideaBuildNumberFileForTests)
+    outputs.dir(ideaHomePathForTests())
     doFirst {
         with(ideaBuildNumberFileForTests.get().asFile) {
             parentFile.mkdirs()
@@ -1186,18 +1186,9 @@ configure<IdeaModel> {
     }
 }
 
-val disableVerificationTasks = providers.gradleProperty("kotlin.build.disable.verification.tasks")
-    .orNull?.toBoolean() ?: false
-if (disableVerificationTasks) {
-    logger.info("Verification tasks are disabled because `kotlin.build.disable.verification.tasks` is true")
-    gradle.taskGraph.whenReady {
-        allTasks.forEach {
-            if (it is VerificationTask) {
-                logger.info("Task ${it.path} is disabled because `kotlin.build.disable.verification.tasks` is true")
-                it.enabled = false
-            }
-        }
-    }
+tasks.withType(Test::class).configureEach {
+    val isVerificationTasksDisabled = providers.gradleProperty("kotlin.build.disable.verification.tasks").map { it.toBoolean() }
+    onlyIf { isVerificationTasksDisabled.map { !it }.getOrElse(true) }
 }
 
 gradle.taskGraph.whenReady(checkYarnAndNPMSuppressed)

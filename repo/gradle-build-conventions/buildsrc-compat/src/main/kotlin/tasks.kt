@@ -172,8 +172,9 @@ fun Project.projectTest(
         evaluationDependsOn(":test-instrumenter")
     }
     return getOrCreateTask<Test>(taskName) {
-        dependsOn(":createIdeaHomeForTests")
-        inputs.dir(File(rootDir, "build/ideaHomeForTests")).withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.files(rootProject.tasks.named("createIdeaHomeForTests"))
+            .withPropertyName("createIdeaHomeForTests")
+            .withPathSensitivity(PathSensitivity.RELATIVE)
 
         muteWithDatabase()
         if (jUnitMode == JUnitMode.JUnit4) {
