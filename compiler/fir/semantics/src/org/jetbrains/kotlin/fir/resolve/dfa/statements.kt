@@ -5,6 +5,8 @@
 
 package org.jetbrains.kotlin.fir.resolve.dfa
 
+import org.jetbrains.kotlin.fir.DfaType
+import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 
 sealed class Statement {
@@ -27,16 +29,25 @@ data class OperationStatement(override val variable: DataFlowVariable, val opera
 sealed class TypeStatement : Statement() {
     abstract override val variable: RealVariable
     abstract val upperTypes: Set<ConeKotlinType>
+    abstract val lowerTypes: Set<DfaType>
 
     val isEmpty: Boolean
-        get() = upperTypes.isEmpty()
+        get() = upperTypes.isEmpty() && lowerTypes.isEmpty()
 
     val isNotEmpty: Boolean
         get() = !isEmpty
 
     final override fun toString(): String {
-        return "$variable: ${upperTypes.joinToString(separator = " & ")}"
+        return "$variable: ${renderType()}"
     }
+
+    fun renderType(): String = listOfNotNull(upperTypeStringOrNull, lowerTypeStringOrNull).joinToString(" & ")
+
+    val upperTypeOrNull: Set<ConeKotlinType>? get() = upperTypes.takeIf { it.isNotEmpty() }
+    val lowerTypeOrNull: Set<DfaType>? get() = lowerTypes.takeIf { it.isNotEmpty() }
+
+    private val upperTypeStringOrNull: String? get() = upperTypeOrNull?.joinToString(separator = " & ")
+    private val lowerTypeStringOrNull: String? get() = lowerTypeOrNull?.joinToString(separator = " | ")?.let { "¬($it)" }
 }
 
 class Implication(
