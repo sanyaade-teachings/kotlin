@@ -14,20 +14,24 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Usage
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.tasks.testing.filter.DefaultTestFilter
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.testing.Test
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.kotlin.dsl.*
 import org.gradle.kotlin.dsl.support.serviceOf
 import org.gradle.process.CommandLineArgumentProvider
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.io.File
+import java.io.IOException
 import java.lang.Character.isLowerCase
 import java.lang.Character.isUpperCase
 import java.lang.management.ManagementFactory
@@ -155,6 +159,7 @@ fun Project.projectTest(
     maxMetaspaceSizeMb: Int = 512,
     reservedCodeCacheSizeMb: Int = 256,
     defineJDKEnvVariables: List<JdkMajorVersion> = emptyList(),
+    additionalPermissions: List<String> = emptyList(),
     body: Test.() -> Unit = {},
 ): TaskProvider<Test> {
     if (jUnitMode == JUnitMode.JUnit5) {
@@ -172,7 +177,7 @@ fun Project.projectTest(
         evaluationDependsOn(":test-instrumenter")
     }
     return getOrCreateTask<Test>(taskName) {
-        inputs.files(rootProject.tasks.named("createIdeaHomeForTests"))
+        inputs.files(rootProject.tasks.named("createIdeaHomeForTests").map { it.outputs.files() })
             .withPropertyName("createIdeaHomeForTests")
             .withPathSensitivity(PathSensitivity.RELATIVE)
 
@@ -341,6 +346,124 @@ fun Project.projectTest(
             defineJDKEnvVariables.forEach { version ->
                 val jdkHome = project.getToolchainJdkHomeFor(version).orNull ?: error("Can't find toolchain for $version")
                 environment(version.envName, jdkHome)
+            }
+        }
+
+        val disableInputsCheck =
+            project.providers.gradleProperty("kotlin.test.instrumentation.disable.inputs.check").orNull?.toBoolean() == true
+        if (!disableInputsCheck) {
+            val permissionsTemplateFile = rootProject.file("tests-permissions.template.policy")
+            val policyFileProvider: Provider<RegularFile> = layout.buildDirectory.file("tests-inputs-security.policy")
+            inputs.file(permissionsTemplateFile).withPathSensitivity(PathSensitivity.RELATIVE)
+            val rootDirPath = rootDir.canonicalPath
+            val gradleUserHomeDir = gradle.gradleUserHomeDir.absolutePath
+
+            doFirst {
+                fun parentsReadPermission(file: File): List<String> {
+                    val parents = mutableListOf<String>()
+                    var p: File? = file.parentFile
+                    while (p != null && p.canonicalPath != rootDirPath) {
+                        parents.add("""permission java.io.FilePermission "${p.absolutePath}", "read";""")
+                        p = p.parentFile
+                    }
+                    return parents
+                }
+
+                val addedDirs = HashSet<File>()
+                val inputPermissions = inputs.files.files.flatMapTo(HashSet<String>()) { file ->
+                    if (file.isDirectory()) {
+                        addedDirs.add(file)
+                        listOf(
+                            """permission java.io.FilePermission "${file.absolutePath}/", "read";""",
+                            """permission java.io.FilePermission "${file.absolutePath}/-", "read${
+                                // We write to the testData folder from tests...
+                                if (file.canonicalPath.contains("/testData/")) ",write" else ""
+                            }";""",
+                        )
+                    } else if (file.extension == "class") {
+                        listOfNotNull(
+                            """permission java.io.FilePermission "${file.parentFile.absolutePath}/-", "read";""".takeIf { addedDirs.add(file.parentFile) }
+                        )
+                    } else if (file.extension == "jar") {
+                        listOf(
+                            """permission java.io.FilePermission "${file.absolutePath}", "read";""",
+                            """permission java.io.FilePermission "${file.parentFile.absolutePath}", "read";""",
+                        )
+                    } else if (file != null) {
+                        val parents = parentsReadPermission(file)
+                        listOf(
+                            """permission java.io.FilePermission "${file.absolutePath}", "read${
+                                if (file.extension == "txt") {
+                                    ",delete"
+                                } else {
+                                    ""
+                                }
+                            }";""",
+                        ) + parents
+                    } else emptyList()
+                }
+                inputs.properties.forEach {
+                    inputPermissions.add("""permission java.util.PropertyPermission "${it.key}", "read";""")
+                }
+                environment.forEach {
+                    inputPermissions.add("""permission java.util.RuntimePermission "${it.key}";""")
+                }
+
+                fun calcCanonicalTempPath(): String {
+                    val file = File(System.getProperty("java.io.tmpdir"))
+                    try {
+                        val canonical = file.getCanonicalPath()
+                        if (!OperatingSystem.current().isWindows || !canonical.contains(" ")) {
+                            return canonical
+                        }
+                    } catch (ignore: IOException) {
+                    }
+                    return file.getAbsolutePath()
+                }
+                val temp_dir = calcCanonicalTempPath()
+
+                val extDirs = System.getProperty("java.ext.dirs")?.split(":")?.flatMap {
+                    listOf(
+                        """permission java.io.FilePermission "$it", "read";""",
+                        """permission java.io.FilePermission "$it/-", "read";""",
+                    )
+                } ?: emptyList()
+
+                val policyFile = policyFileProvider.get().asFile
+                policyFile.parentFile.mkdirs()
+                policyFile.writeText(
+                    permissionsTemplateFile.readText()
+                        .replace(
+                            "{{temp_dir}}",
+                            (parentsReadPermission(File(temp_dir)) + """permission java.io.FilePermission "$temp_dir/-", "read,write,delete";""" + """permission java.io.FilePermission "$temp_dir", "read";""").joinToString(
+                                "\n    "
+                            )
+                        )
+                        .replace(
+                            "{{jdk}}",
+                            (listOf(
+                                """permission java.io.FilePermission "${javaLauncher.orNull?.executablePath?.asFile?.parentFile?.parentFile?.parentFile?.parentFile?.canonicalPath ?: error("No java launcher")}/-", "read,execute";""",
+                            ) + defineJDKEnvVariables.map { version ->
+                                val jdkHome = project.getToolchainLauncherFor(version).orNull?.executablePath?.asFile?.parentFile?.parentFile?.parentFile?.parentFile?.canonicalPath ?: error("Can't find toolchain for $version")
+                                """permission java.io.FilePermission "$jdkHome/-", "read,execute";"""
+                            } + extDirs
+                                    ).joinToString("\n    ")
+                        )
+                        .replace(
+                            "{{gradle_user_home}}",
+                            """$gradleUserHomeDir"""
+                        )
+                        .replace("{{inputs}}", inputPermissions.sorted().joinToString("\n    "))
+                        .replace("{{additional_permissions}}", additionalPermissions.sorted().joinToString("\n    "))
+                )
+
+                println("Security policy for test inputs generated to ${policyFile.absolutePath}")
+                jvmArgs(
+                    "-Djava.security.manager=java.lang.SecurityManager",
+                    "-Djava.security.debug=failure",
+                    "-Djava.security.policy=${policyFile.absolutePath}",
+                    //"-Xss2m",
+                )
             }
         }
     }.apply { configure(body) }
