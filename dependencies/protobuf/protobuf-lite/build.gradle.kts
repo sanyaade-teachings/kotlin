@@ -20,8 +20,8 @@ val renamedSources = "${layout.buildDirectory.get()}/renamedSrc/"
 val outputJarsPath = "${layout.buildDirectory.get()}/libs"
 
 dependencies {
-    relocatedProtobuf("com.google.protobuf:protobuf-javalite:$protobufVersion")
-    relocatedProtobufSources("com.google.protobuf:protobuf-javalite:$protobufVersion:sources")
+    relocatedProtobuf("com.google.protobuf:protobuf-javalite:$protobufVersion") { isTransitive = false }
+    relocatedProtobufSources("com.google.protobuf:protobuf-javalite:$protobufVersion:sources") { isTransitive = false }
 }
 
 val prepare = tasks.register<ShadowJar>("prepare") {
