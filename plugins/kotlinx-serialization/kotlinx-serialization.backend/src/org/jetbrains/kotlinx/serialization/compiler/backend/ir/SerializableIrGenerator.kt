@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.util.OperatorNameConventions
+import org.jetbrains.kotlin.utils.addToStdlib.assignFrom
 import org.jetbrains.kotlin.utils.addToStdlib.butIf
 import org.jetbrains.kotlin.utils.getOrPutNullable
 import org.jetbrains.kotlinx.serialization.compiler.extensions.SerializationPluginContext
@@ -291,7 +292,7 @@ class SerializableIrGenerator(
             compilerContext.irBuiltIns.unitType,
             superCtorRef
         )
-        arguments.forEachIndexed { index, parameter -> call.putValueArgument(index, irGet(parameter)) }
+        call.arguments.assignFrom(arguments) { irGet(it) }
         call.insertTypeArgumentsForSuperClass(superClass)
         +call
         return superProperties.size
