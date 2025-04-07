@@ -300,9 +300,7 @@ class SerializableIrGenerator(
 
     fun generateWriteSelfMethod(methodDescriptor: IrSimpleFunction) {
         addFunctionBody(methodDescriptor) { writeSelfFunction ->
-            val objectToSerialize = writeSelfFunction.valueParameters[0]
-            val localOutput = writeSelfFunction.valueParameters[1]
-            val localSerialDesc = writeSelfFunction.valueParameters[2]
+            val (objectToSerialize, localOutput, localSerialDesc) = writeSelfFunction.nonDispatchParameters
             val serializableProperties = properties.serializableProperties
             val kOutputClass = compilerContext.getClassFromRuntime(SerialEntityNames.STRUCTURE_ENCODER_CLASS)
 
@@ -329,7 +327,9 @@ class SerializableIrGenerator(
                     // even if they were created without it
                     if (superWriteSelfF.dispatchReceiverParameter != null) {
                         superWriteSelfF = compilerContext.copiedStaticWriteSelf.getOrPut(superWriteSelfF) {
-                            superWriteSelfF!!.deepCopyWithSymbols(initialParent = superClass).also { it.dispatchReceiverParameter = null }
+                            superWriteSelfF.deepCopyWithSymbols(initialParent = superClass).also {
+                                it.parameters = it.nonDispatchParameters
+                            }
                         }
                     }
 
@@ -347,7 +347,7 @@ class SerializableIrGenerator(
                             genericIdx,
                             irClass
                         ) { it, _ ->
-                            irGet(writeSelfFunction.valueParameters[3 + it])
+                            irGet(writeSelfFunction.nonDispatchParameters[3 + it])
                         }!!
                     }
                     +irInvoke(superWriteSelfF.symbol, args + parentWriteSelfSerializers, typeArgsForParent.map { it.typeOrNull!! })
@@ -364,7 +364,7 @@ class SerializableIrGenerator(
                 localOutput, localSerialDesc, kOutputClass,
                 ignoreIndexTo, initializerAdapter, cachedChildSerializerByIndex,
             ) { it, _ ->
-                irGet(writeSelfFunction.valueParameters[3 + it])
+                irGet(writeSelfFunction.nonDispatchParameters[3 + it])
             }
         }
     }
