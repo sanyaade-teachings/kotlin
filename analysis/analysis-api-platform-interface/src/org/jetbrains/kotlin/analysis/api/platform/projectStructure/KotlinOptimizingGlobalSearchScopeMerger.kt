@@ -11,18 +11,9 @@ import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 
 public class KotlinOptimizingGlobalSearchScopeMerger(private val project: Project) : KotlinGlobalSearchScopeMerger {
     @OptIn(KaExperimentalApi::class)
-    private fun <T : Any> Collection<GlobalSearchScope>.applyStrategy(strategy: KotlinGlobalSearchScopeMergeStrategy<T>): Collection<GlobalSearchScope> {
-        val applicableScopes = this.filterIsInstance(strategy.targetType.java).ifEmpty { return this@applyStrategy }
-
-        @Suppress("UNCHECKED_CAST")
-        val restScopes = (this - applicableScopes) as List<GlobalSearchScope>
-        return strategy.uniteScopes(applicableScopes) + restScopes
-    }
-
-    @OptIn(KaExperimentalApi::class)
     override fun union(scopes: Collection<GlobalSearchScope>): GlobalSearchScope {
-        when {
-            scopes.isEmpty() -> return GlobalSearchScope.EMPTY_SCOPE
+        if (scopes.isEmpty()) {
+            return GlobalSearchScope.EMPTY_SCOPE
         }
 
         val providedStrategies =
@@ -33,5 +24,14 @@ public class KotlinOptimizingGlobalSearchScopeMerger(private val project: Projec
         }
 
         return GlobalSearchScope.union(resultingScopes)
+    }
+
+    @OptIn(KaExperimentalApi::class)
+    private fun <T : Any> Collection<GlobalSearchScope>.applyStrategy(strategy: KotlinGlobalSearchScopeMergeStrategy<T>): Collection<GlobalSearchScope> {
+        val applicableScopes = this.filterIsInstance(strategy.targetType.java).ifEmpty { return this@applyStrategy }
+
+        @Suppress("UNCHECKED_CAST")
+        val restScopes = (this - applicableScopes) as List<GlobalSearchScope>
+        return strategy.uniteScopes(applicableScopes) + restScopes
     }
 }
