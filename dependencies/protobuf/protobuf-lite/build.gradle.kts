@@ -16,8 +16,8 @@ val relocatedProtobufSources by configurations.creating
 
 val protobufVersion: String by rootProject.extra
 
-val renamedSources = "$buildDir/renamedSrc/"
-val outputJarsPath = "$buildDir/libs"
+val renamedSources = "${layout.buildDirectory.get()}/renamedSrc/"
+val outputJarsPath = "${layout.buildDirectory.get()}/libs"
 
 dependencies {
     relocatedProtobuf("com.google.protobuf:protobuf-javalite:$protobufVersion")
