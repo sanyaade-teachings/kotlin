@@ -217,7 +217,7 @@ open class SerializerIrGenerator(
 
             // store type arguments serializers in fields
             val thisAsReceiverParameter = irClass.thisReceiver!!
-            ctor.valueParameters.forEachIndexed { index, param ->
+            ctor.parameters.forEachIndexed { index, param ->
                 val localSerial = localSerializersFieldsDescriptors[index].backingField!!
                 +irSetField(
                     IrGetValueImpl(startOffset, endOffset, thisAsReceiverParameter.symbol), localSerial, irGet(param)
@@ -277,10 +277,10 @@ open class SerializerIrGenerator(
 
         //  public fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder
         val beginFunc =
-            encoderClass.functions.single { it.owner.name.asString() == CallingConventions.begin && it.owner.valueParameters.size == 1 }
+            encoderClass.functions.single { it.owner.name.asString() == CallingConventions.begin && it.owner.hasShape(dispatchReceiver = true, regularParameters = 1) }
 
-        val call = irInvoke(beginFunc, irGet(saveFunc.valueParameters[0]), irGet(localSerialDesc), returnTypeHint = kOutputClass.defaultType)
-        val objectToSerialize = saveFunc.valueParameters[1]
+        val call = irInvoke(beginFunc, irGet(saveFunc.parameters[1]), irGet(localSerialDesc), returnTypeHint = kOutputClass.defaultType)
+        val objectToSerialize = saveFunc.parameters[2]
         val localOutput = irTemporary(call, "output")
 
         val writeSelfFunction = serializableIrClass.findWriteSelfMethod()
@@ -418,10 +418,10 @@ open class SerializerIrGenerator(
 
         //input = input.beginStructure(...)
         val beginFunc =
-            decoderClass.functions.single { it.owner.name.asString() == CallingConventions.begin && it.owner.valueParameters.size == 1 }
+            decoderClass.functions.single { it.owner.name.asString() == CallingConventions.begin && it.owner.hasShape(dispatchReceiver = true, regularParameters = 1) }
         val call = irInvoke(
             beginFunc,
-            irGet(loadFunc.valueParameters[0]),
+            irGet(loadFunc.parameters[1]),
             irGet(localSerialDesc),
             returnTypeHint = inputClass.defaultType
         )
@@ -440,14 +440,14 @@ open class SerializerIrGenerator(
                         formEncodeDecodePropertyCall(localInput.get(), loadFunc.dispatchReceiverParameter!!, property, { innerSerial, sti ->
                             inputClass.functions.single {
                                 it.owner.name.asString() == "${CallingConventions.decode}${sti.elementMethodPrefix}Serializable${CallingConventions.elementPostfix}" &&
-                                        it.owner.valueParameters.size == 4
+                                        it.owner.hasShape(dispatchReceiver = true, regularParameters = 4)
                             } to listOf(
                                 localSerialDesc.get(), irInt(index), innerSerial, serialPropertiesMap.getValue(property.ir).get()
                             )
                         }, { sti ->
                                                          inputClass.functions.single {
                                                              it.owner.name.asString() == "${CallingConventions.decode}${sti.elementMethodPrefix}${CallingConventions.elementPostfix}" &&
-                                                                     it.owner.valueParameters.size == 2
+                                                                     it.owner.hasShape(dispatchReceiver = true, regularParameters = 2)
                                                          } to listOf(localSerialDesc.get(), irInt(index))
                                                      }, cachedChildSerializerByIndex(index), returnTypeHint = property.type)
                     // local$i = localInput.decode...(...)
@@ -489,7 +489,7 @@ open class SerializerIrGenerator(
                             Name.identifier(UNKNOWN_FIELD_EXC)
                         )
                     )
-                        .single { it.owner.valueParameters.singleOrNull()?.type?.isInt() == true }
+                        .single { it.owner.hasShape(regularParameters = 1, parameterTypes = listOf(context.irBuiltIns.intType)) }
                     +elseBranch(
                         irThrow(
                             irInvoke(
