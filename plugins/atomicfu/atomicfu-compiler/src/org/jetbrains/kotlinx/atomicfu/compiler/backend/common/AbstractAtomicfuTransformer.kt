@@ -430,7 +430,7 @@ abstract class AbstractAtomicfuTransformer(
                     dispatchReceiver = dispatchReceiver,
                     valueType = valueType,
                     atomicHandlerExtraArg = atomicHandlerExtraArg,
-                    callValueArguments = List(expression.valueArgumentsCount) { expression.getValueArgument(it) },
+                    callValueArguments = expression.nonDispatchArguments,
                     functionName = functionName
                 )
                 return super.visitExpression(atomicCall, data)
