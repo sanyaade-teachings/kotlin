@@ -753,13 +753,6 @@ public class SequenceTest {
         assertEquals(setOf(1, 2, 3), sequenceOf(1, 2, 1, 3, 2, 3).toSet())
     }
 
-    @Test fun toList() {
-        assertEquals(emptyList(), emptySequence<Int>().toList())
-        assertEquals(listOf(42), sequenceOf(42).toList())
-        assertEquals(listOf(3, 2, 1), sequenceOf(3, 2, 1).toList())
-        assertEquals(listOf(1, 2, 1, 3, 2, 3), sequenceOf(1, 2, 1, 3, 2, 3).toList())
-    }
-
     @Test fun sequenceOfEmpty() {
         compare(emptyList<Int>().asSequence(), sequenceOf<Int>()) {
             sequenceBehavior()
@@ -774,6 +767,10 @@ public class SequenceTest {
 
     @Test fun sequenceOfVararg() {
         compare(listOf(1, 2, 3).asSequence(), sequenceOf(1, 2, 3)) {
+            sequenceBehavior()
+        }
+
+        compare(listOf(1, 2, 1, 3, 2, 3).asSequence(), sequenceOf(1, 2, 1, 3, 2, 3)) {
             sequenceBehavior()
         }
     }
