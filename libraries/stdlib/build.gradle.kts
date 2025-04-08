@@ -20,6 +20,7 @@ import plugins.configureDefaultPublishing
 import plugins.configureKotlinPomAttributes
 import plugins.publishing.configureMultiModuleMavenPublishing
 import plugins.publishing.copyAttributes
+import java.nio.file.Files
 import kotlin.io.path.copyTo
 
 plugins {
@@ -217,6 +218,11 @@ kotlin {
                 associateWith(mainJdk7)
                 associateWith(mainJdk8)
             }
+            val recursiveDeletionTest by creating {
+                associateWith(main)
+                associateWith(mainJdk7)
+                associateWith(mainJdk8)
+            }
         }
     }
     js(IR) {
@@ -397,6 +403,13 @@ kotlin {
                 api(kotlinTest("junit"))
             }
             kotlin.srcDir("jvm/testLongRunning")
+        }
+
+        val jvmRecursiveDeletionTest by getting {
+            dependencies {
+                api(kotlinTest("junit"))
+            }
+            kotlin.srcDir("jdk7/recursiveDeletionTest")
         }
 
         val jsMain by getting {
@@ -831,6 +844,26 @@ tasks {
         }
     }
 
+    // The test removes a directory inside a current working directory.
+    // This task isolates it from all other tests and provides it with a dedicated working directory.
+    val jvmRecursiveDeletionTest by registering(Test::class) {
+        group = "verification"
+        val compilation = kotlin.jvm().compilations["recursiveDeletionTest"]
+
+        testClassesDirs = compilation.output.classesDirs
+        classpath = compilation.compileDependencyFiles + compilation.runtimeDependencyFiles + compilation.output.allOutputs
+
+        var buildDir = layout.buildDirectory.get().asFile.toPath()
+
+        doFirst {
+            workingDir(Files.createTempDirectory(buildDir, "rec-deletion-tests-"))
+        }
+
+        doLast {
+            workingDir.deleteRecursively()
+        }
+    }
+    check.configure { dependsOn(jvmRecursiveDeletionTest) }
 }
 
 
