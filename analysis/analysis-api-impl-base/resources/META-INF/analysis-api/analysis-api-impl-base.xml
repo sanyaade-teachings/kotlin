@@ -68,8 +68,8 @@
     />
 
     <projectService
-        serviceInterface="org.jetbrains.kotlin.analysis.api.platform.projectStructure.KotlinGlobalSearchScopeMerger"
-        serviceImplementation="org.jetbrains.kotlin.analysis.api.platform.projectStructure.KotlinOptimizingGlobalSearchScopeMerger"
+        serviceInterface="org.jetbrains.kotlin.analysis.api.platform.projectStructure.KaGlobalSearchScopeMerger"
+        serviceImplementation="org.jetbrains.kotlin.analysis.api.impl.base.projectStructure.KotlinOptimizingGlobalSearchScopeMerger"
     />
 
     <applicationService serviceImplementation="org.jetbrains.kotlin.analysis.decompiled.light.classes.origin.KotlinDeclarationInCompiledFileSearcher" />

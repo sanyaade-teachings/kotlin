@@ -10,7 +10,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analysis.api.KaPlatformInterface
 import org.jetbrains.kotlin.analysis.api.platform.projectStructure.KaResolutionScope
 import org.jetbrains.kotlin.analysis.api.platform.projectStructure.KaResolutionScopeProvider
-import org.jetbrains.kotlin.analysis.api.platform.projectStructure.KotlinGlobalSearchScopeMerger
+import org.jetbrains.kotlin.analysis.api.platform.projectStructure.KaGlobalSearchScopeMerger
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaBuiltinsModule
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaLibrarySourceModule
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaModule
@@ -21,7 +21,7 @@ class KaBaseResolutionScopeProvider : KaResolutionScopeProvider {
         val moduleWithDependentScopes = getModuleAndDependenciesContentScopes(module)
         return KaBaseResolutionScope(
             module,
-            KotlinGlobalSearchScopeMerger.getInstance(module.project)
+            KaGlobalSearchScopeMerger.getInstance(module.project)
                 .union(moduleWithDependentScopes)
         )
     }

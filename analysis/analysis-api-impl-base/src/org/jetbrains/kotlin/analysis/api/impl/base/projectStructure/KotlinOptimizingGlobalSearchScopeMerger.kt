@@ -3,13 +3,15 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.analysis.api.platform.projectStructure
+package org.jetbrains.kotlin.analysis.api.impl.base.projectStructure
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
+import org.jetbrains.kotlin.analysis.api.platform.projectStructure.KaGlobalSearchScopeMerger
+import org.jetbrains.kotlin.analysis.api.platform.projectStructure.KotlinGlobalSearchScopeMergeStrategy
 
-public class KotlinOptimizingGlobalSearchScopeMerger(private val project: Project) : KotlinGlobalSearchScopeMerger {
+class KotlinOptimizingGlobalSearchScopeMerger(private val project: Project) : KaGlobalSearchScopeMerger {
     @OptIn(KaExperimentalApi::class)
     override fun union(scopes: Collection<GlobalSearchScope>): GlobalSearchScope {
         if (scopes.isEmpty()) {
@@ -17,7 +19,7 @@ public class KotlinOptimizingGlobalSearchScopeMerger(private val project: Projec
         }
 
         val providedStrategies =
-            KotlinGlobalSearchScopeMergeStrategy.getMergeStrategies(project)
+            KotlinGlobalSearchScopeMergeStrategy.Companion.getMergeStrategies(project)
 
         val resultingScopes = providedStrategies.fold(scopes) { scopes, strategy ->
             scopes.applyStrategy(strategy)

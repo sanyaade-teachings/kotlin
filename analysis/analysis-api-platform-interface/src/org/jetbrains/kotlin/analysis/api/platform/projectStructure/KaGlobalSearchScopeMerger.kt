@@ -14,13 +14,13 @@ import org.jetbrains.kotlin.analysis.api.platform.KaEngineService
  * Merges [GlobalSearchScope]s according to registered [KotlinGlobalSearchScopeMergeStrategy] with the goal
  * of creating an optimized and flattened combined scope.
  */
-public interface KotlinGlobalSearchScopeMerger : KaEngineService {
+public interface KaGlobalSearchScopeMerger : KaEngineService {
     /**
      * Creates a merged [GlobalSearchScope] which represents a *union* of all [scopes].
      */
     public fun union(scopes: Collection<GlobalSearchScope>): GlobalSearchScope
 
     public companion object {
-        public fun getInstance(project: Project): KotlinGlobalSearchScopeMerger = project.service()
+        public fun getInstance(project: Project): KaGlobalSearchScopeMerger = project.service()
     }
 }

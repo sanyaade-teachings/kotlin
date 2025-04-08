@@ -84,7 +84,7 @@ projectStructure/KotlinContentScopeRefiner.kt:Companion:EP_NAME
 projectStructure/KotlinContentScopeRefiner.kt:Companion:getRefiners(Project)
 projectStructure/KotlinGlobalSearchScopeMergeStrategy.kt:Companion:EP_NAME
 projectStructure/KotlinGlobalSearchScopeMergeStrategy.kt:Companion:getMergeStrategies(Project)
-projectStructure/KotlinGlobalSearchScopeMerger.kt:Companion:getInstance(Project)
+projectStructure/KaGlobalSearchScopeMerger.kt:Companion:getInstance(Project)
 projectStructure/KotlinModuleDependentsProvider.kt:Companion:getInstance(Project)
 projectStructure/KotlinModuleDependentsProviderBase.kt:abstract KotlinModuleDependentsProviderBase
 projectStructure/KotlinModuleOutputProvider.kt:Companion:getInstance(Project)

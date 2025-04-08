@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
 /**
  * [KotlinGlobalSearchScopeMergeStrategy] is used to declare a strategy for
  * merging a list of [GlobalSearchScope]s into a single [GlobalSearchScope].
- * Is used by implementations of [KotlinGlobalSearchScopeMerger] to optimize the merging process and flatten the resulting scope.
+ * Is used by implementations of [KaGlobalSearchScopeMerger] to optimize the merging process and flatten the resulting scope.
  *
  * Note that [KotlinGlobalSearchScopeMergeStrategy] are applied in the order they are registered.
  */
