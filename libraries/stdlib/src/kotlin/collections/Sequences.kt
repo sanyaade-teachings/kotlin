@@ -59,6 +59,15 @@ public fun <T> sequenceOf(element: T): Sequence<T> = Sequence {
 }
 
 /**
+ * Creates an empty [Sequence].
+ *
+ * @return an empty sequence.
+ * @sample samples.collections.Sequences.Building.sequenceOfEmpty
+ */
+@SinceKotlin("2.1")
+public fun <T> sequenceOf(): Sequence<T> = emptySequence()
+
+/**
  * Returns an empty sequence.
  */
 public fun <T> emptySequence(): Sequence<T> = EmptySequence
