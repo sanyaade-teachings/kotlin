@@ -123,6 +123,7 @@ public fun <T> CompareContext<Collection<T>>.collectionBehavior(objectName: Stri
 public fun <T> CompareContext<Sequence<T>>.sequenceBehavior() {
     propertyEquals { count() }
     propertyEquals { toList() }
+    propertyEquals { toSet() }
 
     compareProperty({ iterator() }, { iteratorBehavior() })
 
