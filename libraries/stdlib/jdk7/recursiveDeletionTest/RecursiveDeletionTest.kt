@@ -5,7 +5,6 @@
 
 package test.jdk7
 
-import org.junit.Assume.assumeTrue
 import org.junit.AssumptionViolatedException
 import java.nio.file.Paths
 import kotlin.io.path.*
