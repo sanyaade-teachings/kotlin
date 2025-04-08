@@ -25,10 +25,12 @@ grant {
     permission java.util.PropertyPermission "platform.random.idempotence.check.rate", "write";
     permission java.util.PropertyPermission "apple.awt.UIElement", "write";
     permission java.io.FilePermission "{{gradle_user_home}}/-", "read,write,delete,execute";
-    permission java.io.FilePermission "/Users/cristiangarcia/IdeaProjects/kotlin2/compiler/tests-common-new/some/non/existent/path/-", "read";
 
     // This is only for debug
     // permission java.io.FilePermission "/Users/cristiangarcia/Library/Caches/JetBrains/IntelliJIdea2024.3/captureAgent/debugger-agent.jar", "read";
+
+    // It was required but now it's not..I'm not sure why
+    // permission java.io.FilePermission "/Users/cristiangarcia/IdeaProjects/kotlin2/compiler/tests-common-new/some/non/existent/path/-", "read";
 
     // Temp directory
     {{temp_dir}}
@@ -38,7 +40,4 @@ grant {
 
     // Allow access to declared input directories
     {{inputs}}
-
-    // Additional permissions
-    {{additional_permissions}}
 };
