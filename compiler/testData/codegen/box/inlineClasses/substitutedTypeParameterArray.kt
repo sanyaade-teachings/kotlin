@@ -40,53 +40,38 @@ fun box(): String {
     val methods = exampleClass.getDeclaredMethods()
 
     val genericArgumentMethod = methods.single { it.name.startsWith("genericArgument") }
-    require(genericArgumentMethod.toString() == "public static final void ${exampleClass.name}.${genericArgumentMethod.name}(java.lang.Object[],java.lang.Object[])") {
-        "Unexpected method signature for 'genericArgument': ${genericArgumentMethod.toString()}"
+    require(genericArgumentMethod.toGenericString() == "public static final <R> void ${exampleClass.name}.${genericArgumentMethod.name}(java.lang.Object[],java.lang.Object[])") {
+        "Unexpected method signature for 'genericArgument': ${genericArgumentMethod.toGenericString()}"
     }
 
     val instantiatedArgumentMethod = methods.single { it.name.startsWith("instantiatedArgument") }
-    require(instantiatedArgumentMethod.toString() == "public static final void ${exampleClass.name}.${instantiatedArgumentMethod.name}(java.lang.Object[],java.lang.Object[])") {
-        "Unexpected method signature for 'instantiatedArgument': ${instantiatedArgumentMethod.toString()}"
+    require(instantiatedArgumentMethod.toGenericString() == "public static final void ${exampleClass.name}.${instantiatedArgumentMethod.name}(java.lang.Object[],java.lang.Object[])") {
+        "Unexpected method signature for 'instantiatedArgument': ${instantiatedArgumentMethod.toGenericString()}"
     }
 
     val returnTypeMethod = methods.single { it.name.startsWith("returnType") }
-    require(
-        returnTypeMethod.toString() == "public static final java.lang.Object[] ${exampleClass.name}.${returnTypeMethod.name}(java.lang.Object[])"
-                || returnTypeMethod.toString() == "public static final [Ljava.lang.Object; ${exampleClass.name}.${returnTypeMethod.name}(java.lang.Object[])"
-    ) {
-        "Unexpected method signature for 'returnType': ${returnTypeMethod.toString()}"
+    require(returnTypeMethod.toGenericString() == "public static final java.lang.Object[] ${exampleClass.name}.${returnTypeMethod.name}(java.lang.Object[])") {
+        "Unexpected method signature for 'returnType': ${returnTypeMethod.toGenericString()}"
     }
 
     val nullableReturnTypeMethod = methods.single { it.name.startsWith("nullableReturnType") }
-    require(
-        nullableReturnTypeMethod.toString() == "public static final java.lang.Object[] ${exampleClass.name}.${nullableReturnTypeMethod.name}(java.lang.Object[])"
-                || nullableReturnTypeMethod.toString() == "public static final [Ljava.lang.Object; ${exampleClass.name}.${nullableReturnTypeMethod.name}(java.lang.Object[])"
-    ) {
-        "Unexpected method signature for 'nullableReturnType': ${nullableReturnTypeMethod.toString()}"
+    require(nullableReturnTypeMethod.toGenericString() == "public static final java.lang.Object[] ${exampleClass.name}.${nullableReturnTypeMethod.name}(java.lang.Object[])") {
+        "Unexpected method signature for 'nullableReturnType': ${nullableReturnTypeMethod.toGenericString()}"
     }
 
     val genericReturnTypeMethod = methods.single { it.name.startsWith("genericReturnType") }
-    require(
-        genericReturnTypeMethod.toString() == "public static final java.lang.Object[] ${exampleClass.name}.${genericReturnTypeMethod.name}(java.lang.Object)"
-                || genericReturnTypeMethod.toString() == "public static final [Ljava.lang.Object; ${exampleClass.name}.${genericReturnTypeMethod.name}(java.lang.Object)"
-    ) {
-        "Unexpected method signature for 'genericReturnType': ${genericReturnTypeMethod.toString()}"
+    require(genericReturnTypeMethod.toGenericString() == "public static final <R> java.lang.Object[] ${exampleClass.name}.${genericReturnTypeMethod.name}(R)") {
+        "Unexpected method signature for 'genericReturnType': ${genericReturnTypeMethod.toGenericString()}"
     }
 
     val instantiatedPropertyGetter = methods.single { it.name.startsWith("getInstantiatedProperty") }
-    require(
-        instantiatedPropertyGetter.toString() == "public final java.lang.Object[] ${exampleClass.name}.${instantiatedPropertyGetter.name}()"
-                || instantiatedPropertyGetter.toString() == "public final [Ljava.lang.Object; ${exampleClass.name}.${instantiatedPropertyGetter.name}()"
-    ) {
-        "Unexpected method signature for 'getInstantiatedProperty': ${instantiatedPropertyGetter.toString()}"
+    require(instantiatedPropertyGetter.toGenericString() == "public final java.lang.Object[] ${exampleClass.name}.${instantiatedPropertyGetter.name}()") {
+        "Unexpected method signature for 'getInstantiatedProperty': ${instantiatedPropertyGetter.toGenericString()}"
     }
 
     val nullablePropertyGetter = methods.single { it.name.startsWith("getNullableProperty") }
-    require(
-        nullablePropertyGetter.toString() == "public final java.lang.Object[] ${exampleClass.name}.${nullablePropertyGetter.name}()"
-                || nullablePropertyGetter.toString() == "public final [Ljava.lang.Object; ${exampleClass.name}.${nullablePropertyGetter.name}()"
-    ) {
-        "Unexpected method signature for 'getNullableProperty': ${nullablePropertyGetter.toString()}"
+    require(nullablePropertyGetter.toGenericString() == "public final java.lang.Object[] ${exampleClass.name}.${nullablePropertyGetter.name}()") {
+        "Unexpected method signature for 'getNullableProperty': ${nullablePropertyGetter.toGenericString()}"
     }
 
     return "OK"

@@ -40,8 +40,16 @@ private fun TypeSystemCommonBackendContext.computeExpandedTypeInner(
             // kotlinType is the boxed inline class type
             val unsubstitutedUnderlyingType = kotlinType.getUnsubstitutedUnderlyingType()
             val underlyingType = when {
-                // value class of the form <A> ValueClass(value: A) and <A> ValueClass(value: Array<A>)
-                unsubstitutedUnderlyingType != null && isTypeParameterOrArrayOfTypeParameterType(unsubstitutedUnderlyingType) -> unsubstitutedUnderlyingType
+                // value class of the form <A> ValueClass(value: A)
+                unsubstitutedUnderlyingType != null && isTypeParameter(unsubstitutedUnderlyingType) -> unsubstitutedUnderlyingType
+                // value class of the form <A> ValueClass(value: Array<A>)
+                unsubstitutedUnderlyingType != null && isArrayOfTypeParameterType(unsubstitutedUnderlyingType) -> {
+                    val unsubstitutedElementType =
+                        unsubstitutedUnderlyingType.getArgument(0).getType()?.typeConstructor()?.getTypeParameterClassifier() ?: return null
+                    val elementTypeUpperBound = unsubstitutedElementType.getRepresentativeUpperBound()
+                    val arrayType = arrayType(elementTypeUpperBound)
+                    if (unsubstitutedUnderlyingType.isNullableType()) arrayType.makeNullable() else arrayType
+                }
                 // value class of the form <A> ValueClass(value: T<A>) and regular case
                 else -> kotlinType.getSubstitutedUnderlyingType() ?: unsubstitutedUnderlyingType
             } ?: return null
@@ -66,6 +74,8 @@ private fun TypeSystemCommonBackendContext.computeExpandedTypeInner(
     }
 }
 
-fun TypeSystemCommonBackendContext.isTypeParameterOrArrayOfTypeParameterType(type: KotlinTypeMarker): Boolean =
-    type.typeConstructor().getTypeParameterClassifier() != null ||
-            (type.isArrayOrNullableArray() && type.getArgument(0).getType()?.let { isTypeParameterOrArrayOfTypeParameterType(it) } == true)
+fun TypeSystemCommonBackendContext.isTypeParameter(type: KotlinTypeMarker): Boolean =
+    type.typeConstructor().getTypeParameterClassifier() != null
+
+fun TypeSystemCommonBackendContext.isArrayOfTypeParameterType(type: KotlinTypeMarker): Boolean =
+    type.isArrayOrNullableArray() && type.getArgument(0).getType()?.let { isTypeParameter(it) } == true
