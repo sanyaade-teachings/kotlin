@@ -110,9 +110,9 @@ internal fun AbiValidationVariantSpecImpl.configureLegacyTasks(
 
             it.klib.convention(it.klibInput.map { targets -> if (it.klibIsEnabled.get()) targets else emptyList() })
 
-            it.includedClasses.convention(filters.included.named)
+            it.includedClasses.convention(filters.included.byNames)
             it.includedAnnotatedWith.convention(filters.included.annotatedWith)
-            it.excludedClasses.convention(filters.excluded.named)
+            it.excludedClasses.convention(filters.excluded.byNames)
             it.excludedAnnotatedWith.convention(filters.excluded.annotatedWith)
 
             it.onlyIf { isEnabled.get() }

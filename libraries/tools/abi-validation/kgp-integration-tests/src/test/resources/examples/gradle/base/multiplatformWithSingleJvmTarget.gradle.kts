@@ -19,16 +19,10 @@ kotlin {
 
     targets {
         jvm {
-            compilations.all {
-                kotlinOptions.jvmTarget = "1.8"
-            }
             testRuns["test"].executionTask.configure {
                 useJUnit()
             }
         }
-//        android {
-//
-//        }
     }
     sourceSets {
         val commonMain by getting

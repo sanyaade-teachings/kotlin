@@ -7,7 +7,7 @@ kotlin {
     @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
     abiValidation {
         filters.included {
-            named.addAll("foo.api.**", "foo.PublicClass")
+            byNames.addAll("foo.api.**", "foo.PublicClass")
             annotatedWith.addAll("foo.PublicClass", "foo.PublicField", "foo.PublicProperty")
         }
     }

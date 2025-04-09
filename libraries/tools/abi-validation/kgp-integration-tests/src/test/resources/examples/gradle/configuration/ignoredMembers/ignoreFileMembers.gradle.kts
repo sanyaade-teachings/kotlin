@@ -5,6 +5,6 @@
 kotlin {
     @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
     abiValidation {
-        filters.excluded.named.addAll("examples.classes.a", "examples.classes.d", "examples.classes.testFun")
+        filters.excluded.byNames.addAll("examples.classes.a", "examples.classes.d", "examples.classes.testFun")
     }
 }

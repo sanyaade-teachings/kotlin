@@ -13,17 +13,17 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinGradlePluginDsl
  *  A set of filtering rules that restrict Application Binary Interface (ABI) declarations from being included in a dump.
  *
  * The rules combine inclusion and exclusion of declarations.
- * Each filter can be written as either a class name filter (see [AbiFilterSetSpec.named]) or an annotation filter (see [AbiFilterSetSpec.annotatedWith]).
+ * Each filter can be written as either a class name filter (see [AbiFilterSetSpec.byNames]) or an annotation filter (see [AbiFilterSetSpec.annotatedWith]).
  *
  * ```kotlin
  * filters {
  *     excluded {
- *         named.add("foo.Bar")
+ *         byNames.add("foo.Bar")
  *         annotatedWith.add("foo.ExcludeAbi")
  *     }
  *
  *     included {
- *         named.add("foo.api.**")
+ *         byNames.add("foo.api.**")
  *         annotatedWith.add("foo.PublicApi")
  *     }
  * }
@@ -31,7 +31,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinGradlePluginDsl
  *
  * In order for a declaration (class, field, property or function) to be included in the dump, it must pass **all** inclusion and exclusion filters.
  *
- * A declaration successfully passes the exclusion filter if it does not match any of the class name (see [AbiFilterSetSpec.named]) or annotation  (see [AbiFilterSetSpec.annotatedWith]) filter rules.
+ * A declaration successfully passes the exclusion filter if it does not match any of the class name (see [AbiFilterSetSpec.byNames]) or annotation  (see [AbiFilterSetSpec.annotatedWith]) filter rules.
  *
  * A declaration successfully passes the inclusion filter if no inclusion rules exist, if it matches any inclusion rule, or if at least one of its members (relevant for class declaration) matches any inclusion rule.
  *
@@ -44,7 +44,7 @@ interface AbiFiltersSpec {
      *  A set of filtering rules that restrict ABI declarations from being included in a dump.
      *
      * The rules combine inclusion and exclusion of declarations.
-     * Each filter can be written as either a class name filter (see [AbiFilterSetSpec.named]) or an annotation filter (see [AbiFilterSetSpec.annotatedWith]).
+     * Each filter can be written as either a class name filter (see [AbiFilterSetSpec.byNames]) or an annotation filter (see [AbiFilterSetSpec.annotatedWith]).
      *
      * ```kotlin
      * filters {
@@ -63,12 +63,12 @@ interface AbiFiltersSpec {
      * A set of filtering rules that restrict ABI declarations from being included in a dump.
      *
      * It consists of a combination of rules for including declarations.
-     * Each filter can be written as either a class name filter (see [AbiFilterSetSpec.named]) or an annotation filter (see [AbiFilterSetSpec.annotatedWith]).
+     * Each filter can be written as either a class name filter (see [AbiFilterSetSpec.byNames]) or an annotation filter (see [AbiFilterSetSpec.annotatedWith]).
      *
      * ```kotlin
      * filters {
      *     included {
-     *         named.add("foo.api.**")
+     *         byNames.add("foo.api.**")
      *         annotatedWith.add("foo.PublicApi")
      *     }
      * }
@@ -115,7 +115,7 @@ interface AbiFiltersSpec {
  * ```kotlin
  * filters {
  *     included {
- *         named.add("foo.api.**")
+ *         byNames.add("foo.api.**")
  *         annotatedWith.add("foo.PublicApi")
  *     }
  * }
@@ -125,7 +125,7 @@ interface AbiFiltersSpec {
  * ```kotlin
  * filters {
  *     excluded {
- *         named.add("foo.Bar")
+ *         byNames.add("foo.Bar")
  *         annotatedWith.add("foo.ExcludeAbi")
  *     }
  * }
@@ -144,7 +144,7 @@ interface AbiFilterSetSpec {
      * ```kotlin
      * filters {
      *     excluded {
-     *         named.add("foo.Bar") // name filter, excludes class with name `foo.Bar` from dump
+     *         byNames.add("foo.Bar") // name filter, excludes class with name `foo.Bar` from dump
      *     }
      * }
      * ```
@@ -169,12 +169,12 @@ interface AbiFilterSetSpec {
      * ```kotlin
      * filters {
      *     excluded {
-     *         named.add("**.My*") //  A name filter that excludes classes in any non-root package with a name starting with `My`.
+     *         byNames.add("**.My*") //  A name filter that excludes classes in any non-root package with a name starting with `My`.
      *     }
      * }
      * ```
      */
-    val named: SetProperty<String>
+    val byNames: SetProperty<String>
 
     /**
      * Filter by annotations placed on the declaration.
