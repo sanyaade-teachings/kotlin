@@ -1,4 +1,4 @@
-@file:JsFileName("F1")
+@file:JsFileName("f1")
 
 package foo
 

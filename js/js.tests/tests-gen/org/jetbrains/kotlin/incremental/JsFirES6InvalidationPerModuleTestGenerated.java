@@ -219,9 +219,9 @@ public class JsFirES6InvalidationPerModuleTestGenerated extends AbstractJsFirES6
   }
 
   @Test
-  @TestMetadata("fileNameCaseClash")
-  public void testFileNameCaseClash() {
-    runTest("js/js.translator/testData/incremental/invalidation/fileNameCaseClash/");
+  @TestMetadata("fileNameClash")
+  public void testFileNameClash() {
+    runTest("js/js.translator/testData/incremental/invalidation/fileNameClash/");
   }
 
   @Test
