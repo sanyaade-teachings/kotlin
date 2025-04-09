@@ -8,6 +8,7 @@
 
 package kotlin.sequences
 
+import kotlin.internal.InlineOnly
 import kotlin.random.Random
 
 /**
@@ -65,7 +66,8 @@ public fun <T> sequenceOf(element: T): Sequence<T> = Sequence {
  * @sample samples.collections.Sequences.Building.sequenceOfEmpty
  */
 @SinceKotlin("2.1")
-public fun <T> sequenceOf(): Sequence<T> = emptySequence()
+@InlineOnly
+public inline fun <T> sequenceOf(): Sequence<T> = emptySequence()
 
 /**
  * Returns an empty sequence.
