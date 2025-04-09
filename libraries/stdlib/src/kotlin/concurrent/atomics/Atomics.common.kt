@@ -6,8 +6,6 @@
 @file:kotlin.jvm.JvmMultifileClass
 @file:kotlin.jvm.JvmName("AtomicsKt")
 
-@file:Suppress("API_NOT_AVAILABLE")
-
 package kotlin.concurrent.atomics
 
 /**
