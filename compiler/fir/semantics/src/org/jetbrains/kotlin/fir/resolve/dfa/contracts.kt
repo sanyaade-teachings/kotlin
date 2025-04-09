@@ -50,11 +50,13 @@ fun LogicSystem.approveContractStatement(
                             it.processEqNull(false)
                         else
                             mapOf()
-                        if (isType && it is RealVariable) {
-                            andForTypeStatements(fromNullability, mapOf(it to (it typeEq substitutedType)))
-                        } else {
-                            fromNullability
+                        val fromType = when {
+                            it !is RealVariable -> fromNullability
+                            isType -> mapOf(it to (it typeEq substitutedType))
+                            !isType -> mapOf(it to (it typeNotEq substitutedType))
+                            else -> emptyMap()
                         }
+                        andForTypeStatements(fromNullability, fromType)
                     }
                 }
             } ?: mapOf()
