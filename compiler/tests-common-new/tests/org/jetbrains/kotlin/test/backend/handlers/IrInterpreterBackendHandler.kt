@@ -99,7 +99,7 @@ private class Evaluator(private val interpreter: IrInterpreter, private val glob
 
                 val isConst = declaration.correspondingPropertySymbol?.owner?.isConst == true
                 if (isConst) {
-                    val startOffsetForDiagnostic = declaration.startOffset + "const val  = ".length + declaration.name.asString().length
+                    val startOffsetForDiagnostic = declaration.startOffset + "val  = ".length + declaration.name.asString().length
                     initializer.expression = interpreter.interpret(expression, irFile).report(expression, startOffsetForDiagnostic)
                 }
                 return declaration
