@@ -29178,9 +29178,21 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
     }
 
     @Test
-    @TestMetadata("substitutedTypeParameter.kt")
-    public void testSubstitutedTypeParameter() {
-      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameter.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithReal());
+    @TestMetadata("substitutedTypeParameterArray.kt")
+    public void testSubstitutedTypeParameterArray() {
+      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameterArray.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithReal());
+    }
+
+    @Test
+    @TestMetadata("substitutedTypeParameterNullableWrapper.kt")
+    public void testSubstitutedTypeParameterNullableWrapper() {
+      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameterNullableWrapper.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithReal());
+    }
+
+    @Test
+    @TestMetadata("substitutedTypeParameterWrapper.kt")
+    public void testSubstitutedTypeParameterWrapper() {
+      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameterWrapper.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithReal());
     }
 
     @Test
