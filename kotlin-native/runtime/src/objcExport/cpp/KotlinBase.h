@@ -24,6 +24,8 @@ struct ObjHeader;
 // open class: this is not currently supported.
 - (instancetype)initWithExternalRCRef:(void *)ref NS_REFINED_FOR_SWIFT;
 
+- (instancetype)initAsExistentialWrappingExternalRCRef:(void *)ref NS_REFINED_FOR_SWIFT;
+
 // Return kotlin.native.internal.ref.ExternalRCRef stored in this class
 - (void *)externalRCRef NS_REFINED_FOR_SWIFT NS_RETURNS_INNER_POINTER;
 

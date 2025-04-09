@@ -87,7 +87,7 @@ public final class Bar: KotlinRuntime.KotlinBase, main.Barable, main._Barable, m
 public final class Foo: KotlinRuntime.KotlinBase, main.Foeble, main._Foeble, KotlinRuntimeSupport._KotlinBridged {
     public var baz: any main.Foeble {
         get {
-            return KotlinRuntime.KotlinBase(__externalRCRef: Foo_baz_get(self.__externalRCRef())) as! any main.Foeble
+            return KotlinRuntime.KotlinBase(__asExistentialWrappingExternalRCRef: Foo_baz_get(self.__externalRCRef())) as! any main.Foeble
         }
     }
     public override init() {
@@ -272,7 +272,7 @@ public var list: [any main.Foeble] {
 }
 public var normal: any main.Foeble {
     get {
-        return KotlinRuntime.KotlinBase(__externalRCRef: __root___normal_get()) as! any main.Foeble
+        return KotlinRuntime.KotlinBase(__asExistentialWrappingExternalRCRef: __root___normal_get()) as! any main.Foeble
     }
     set {
         return __root___normal_set__TypesOfArguments__anyU20main_Foeble__(newValue.__externalRCRef())
@@ -280,7 +280,7 @@ public var normal: any main.Foeble {
 }
 public var nullable: (any main.Foeble)? {
     get {
-        return { switch __root___nullable_get() { case nil: .none; case let res: KotlinRuntime.KotlinBase(__externalRCRef: res) as! any main.Foeble; } }()
+        return { switch __root___nullable_get() { case nil: .none; case let res: KotlinRuntime.KotlinBase(__asExistentialWrappingExternalRCRef: res) as! any main.Foeble; } }()
     }
     set {
         return __root___nullable_set__TypesOfArguments__Swift_Optional_anyU20main_Foeble___(newValue.map { it in it.__externalRCRef() } ?? nil)
@@ -314,23 +314,23 @@ public func list(
 public func normal(
     value: any main.Foeble
 ) -> any main.Foeble {
-    return KotlinRuntime.KotlinBase(__externalRCRef: __root___normal__TypesOfArguments__anyU20main_Foeble__(value.__externalRCRef())) as! any main.Foeble
+    return KotlinRuntime.KotlinBase(__asExistentialWrappingExternalRCRef: __root___normal__TypesOfArguments__anyU20main_Foeble__(value.__externalRCRef())) as! any main.Foeble
 }
 public func nullable(
     value: (any main.Foeble)?
 ) -> (any main.Foeble)? {
-    return { switch __root___nullable__TypesOfArguments__Swift_Optional_anyU20main_Foeble___(value.map { it in it.__externalRCRef() } ?? nil) { case nil: .none; case let res: KotlinRuntime.KotlinBase(__externalRCRef: res) as! any main.Foeble; } }()
+    return { switch __root___nullable__TypesOfArguments__Swift_Optional_anyU20main_Foeble___(value.map { it in it.__externalRCRef() } ?? nil) { case nil: .none; case let res: KotlinRuntime.KotlinBase(__asExistentialWrappingExternalRCRef: res) as! any main.Foeble; } }()
 }
 public extension main.Barable where Self : KotlinRuntimeSupport._KotlinBridged {
     public var baz: any main.Foeble {
         get {
-            return KotlinRuntime.KotlinBase(__externalRCRef: Barable_baz_get(self.__externalRCRef())) as! any main.Foeble
+            return KotlinRuntime.KotlinBase(__asExistentialWrappingExternalRCRef: Barable_baz_get(self.__externalRCRef())) as! any main.Foeble
         }
     }
     public func bar(
         arg: any main.Foeble
     ) -> any main.Barable {
-        return KotlinRuntime.KotlinBase(__externalRCRef: Barable_bar__TypesOfArguments__anyU20main_Foeble__(self.__externalRCRef(), arg.__externalRCRef())) as! any main.Barable
+        return KotlinRuntime.KotlinBase(__asExistentialWrappingExternalRCRef: Barable_bar__TypesOfArguments__anyU20main_Foeble__(self.__externalRCRef(), arg.__externalRCRef())) as! any main.Barable
     }
 }
 public extension ExportedKotlinPackages.repeating_conformances.Barable where Self : KotlinRuntimeSupport._KotlinBridged {
@@ -344,13 +344,13 @@ public extension ExportedKotlinPackages.packagewithprotocols.ContainerProtocol w
 public extension main.Foeble where Self : KotlinRuntimeSupport._KotlinBridged {
     public var baz: any main.Foeble {
         get {
-            return KotlinRuntime.KotlinBase(__externalRCRef: Foeble_baz_get(self.__externalRCRef())) as! any main.Foeble
+            return KotlinRuntime.KotlinBase(__asExistentialWrappingExternalRCRef: Foeble_baz_get(self.__externalRCRef())) as! any main.Foeble
         }
     }
     public func bar(
         arg: any main.Foeble
     ) -> any main.Foeble {
-        return KotlinRuntime.KotlinBase(__externalRCRef: Foeble_bar__TypesOfArguments__anyU20main_Foeble__(self.__externalRCRef(), arg.__externalRCRef())) as! any main.Foeble
+        return KotlinRuntime.KotlinBase(__asExistentialWrappingExternalRCRef: Foeble_bar__TypesOfArguments__anyU20main_Foeble__(self.__externalRCRef(), arg.__externalRCRef())) as! any main.Foeble
     }
 }
 public extension ExportedKotlinPackages.repeating_conformances.Foeble where Self : KotlinRuntimeSupport._KotlinBridged {

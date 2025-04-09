@@ -182,7 +182,7 @@ using RegularRef = kotlin::mm::ObjCBackRef;
 
     auto externalRCRef = reinterpret_cast<kotlin::mm::RawExternalRCRef*>(ref);
     Class bestFittingClass =
-            kotlin::swiftExportRuntime::bestFittingObjCClassFor(kotlin::mm::typeOfExternalRCRef(externalRCRef));
+            kotlin::swiftExportRuntime::bestFittingClassFor(kotlin::mm::typeOfExternalRCRef(externalRCRef));
     if ([self class] != bestFittingClass) {
         if ([[self class] isSubclassOfClass:bestFittingClass]) {
             konan::consoleErrorf(
@@ -198,7 +198,7 @@ using RegularRef = kotlin::mm::ObjCBackRef;
         KotlinBase* retiredSelf = self; // old `self`
 
         // Rerun the entire initializer, but with the best-fitting class now.
-        self = [[bestFittingClass alloc] initWithExternalRCRef:ref]; // new `self`, retained.
+        self = [[bestFittingClass alloc] initWithExternalRCRefUnsafe:ref]; // new `self`, retained.
 
         // Fully release old `self` by just decrementing NSObject refcount.
         [retiredSelf releaseAsAssociatedObject];
@@ -206,6 +206,34 @@ using RegularRef = kotlin::mm::ObjCBackRef;
         // Return new `self`.
         return self;
     }
+
+    return [self initWithExternalRCRefUnsafe:ref];
+}
+
+- (instancetype)initAsExistentialWrappingExternalRCRef:(void *)ref {
+    RuntimeAssert(kotlin::compiler::swiftExport(), "Must be used in Swift Export only");
+    kotlin::AssertThreadState(kotlin::ThreadState::kNative);
+
+    auto externalRCRef = reinterpret_cast<kotlin::mm::RawExternalRCRef*>(ref);
+
+    const TypeInfo *typeInfo = kotlin::mm::typeOfExternalRCRef(externalRCRef);
+    Class bestFittingClass = kotlin::swiftExportRuntime::existentialWrapperClassFor(typeInfo)
+            ?: kotlin::swiftExportRuntime::bestFittingClassFor(typeInfo);
+
+     if ([self class] == bestFittingClass) {
+         return [self initWithExternalRCRef:ref];
+     } else {
+         return [[bestFittingClass alloc] initWithExternalRCRefUnsafe:ref];
+     }
+
+     return self;
+}
+
+- (instancetype)initWithExternalRCRefUnsafe:(void *)ref {
+    RuntimeAssert(kotlin::compiler::swiftExport(), "Must be used in Swift Export only");
+    kotlin::AssertThreadState(kotlin::ThreadState::kNative);
+
+    auto externalRCRef = reinterpret_cast<kotlin::mm::RawExternalRCRef*>(ref);
 
     if (auto obj = kotlin::mm::externalRCRefAsPermanentObject(externalRCRef)) {
         refHolder.emplace<PermanentRef>(obj);
@@ -226,6 +254,10 @@ using RegularRef = kotlin::mm::ObjCBackRef;
 
     if (newSelf == nil) {
         // No previous associated object was set, `self` is the associated object.
+        return self;
+    }
+
+    if (![[newSelf class] isSubclassOfClass:[self class]]) {
         return self;
     }
 

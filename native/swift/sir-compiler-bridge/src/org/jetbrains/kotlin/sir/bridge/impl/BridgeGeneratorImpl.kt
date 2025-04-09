@@ -653,7 +653,7 @@ private sealed class Bridge(
             override fun swiftToKotlin(typeNamer: SirTypeNamer, valueExpression: String) = "${valueExpression}.__externalRCRef()"
 
             override fun kotlinToSwift(typeNamer: SirTypeNamer, valueExpression: String) =
-                "${typeNamer.swiftFqName(SirNominalType(KotlinRuntimeModule.kotlinBase))}(__externalRCRef: $valueExpression) as! ${typeNamer.swiftFqName(swiftType)}"
+                "${typeNamer.swiftFqName(SirNominalType(KotlinRuntimeModule.kotlinBase))}(__asExistentialWrappingExternalRCRef: $valueExpression) as! ${typeNamer.swiftFqName(swiftType)}"
         }
     }
 
