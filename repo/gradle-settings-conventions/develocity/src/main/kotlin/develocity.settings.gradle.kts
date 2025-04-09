@@ -50,7 +50,12 @@ buildCache {
             directory = buildProperties.localBuildCacheDirectory
         }
     }
-    if (develocity.server.isPresent) {
+    if (System.getenv("TC_K8S_CLOUD_PROFILE_ID") == "kotlindev-kotlin-k8s") {
+        remote(develocity.buildCache) {
+            isPush = buildProperties.pushToBuildCache
+            server = "https://kotlin-cache.eqx.k8s.intellij.net"
+        }
+    } else if (develocity.server.isPresent) {
         remote(develocity.buildCache) {
             isPush = buildProperties.pushToBuildCache
             val remoteBuildCacheUrl = buildProperties.buildCacheUrl?.trim()
