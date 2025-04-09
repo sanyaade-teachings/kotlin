@@ -372,7 +372,7 @@ fun List<JsIrModule>.merge(): JsIrModule {
             module.reexportedInModuleWithName?.let { reexportedInModuleWithName = it }
         }
 
-        JsIrModule(firstModule.moduleName, firstModule.externalModuleName.lowercase(), fragments, reexportedInModuleWithName)
+        JsIrModule(firstModule.moduleName, firstModule.externalModuleName, fragments, reexportedInModuleWithName)
     }
 }
 

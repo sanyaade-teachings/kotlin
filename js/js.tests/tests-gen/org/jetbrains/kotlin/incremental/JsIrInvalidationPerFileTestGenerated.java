@@ -51,12 +51,6 @@ public class JsIrInvalidationPerFileTestGenerated extends AbstractJsIrInvalidati
   }
 
   @Test
-  @TestMetadata("caseSensitiveModuleName")
-  public void testCaseSensitiveModuleName() {
-    runTest("js/js.translator/testData/incremental/invalidation/caseSensitiveModuleName/");
-  }
-
-  @Test
   @TestMetadata("circleExportsUpdate")
   public void testCircleExportsUpdate() {
     runTest("js/js.translator/testData/incremental/invalidation/circleExportsUpdate/");
@@ -228,12 +222,6 @@ public class JsIrInvalidationPerFileTestGenerated extends AbstractJsIrInvalidati
   @TestMetadata("fileNameCaseClash")
   public void testFileNameCaseClash() {
     runTest("js/js.translator/testData/incremental/invalidation/fileNameCaseClash/");
-  }
-
-  @Test
-  @TestMetadata("fileNameClash")
-  public void testFileNameClash() {
-    runTest("js/js.translator/testData/incremental/invalidation/fileNameClash/");
   }
 
   @Test

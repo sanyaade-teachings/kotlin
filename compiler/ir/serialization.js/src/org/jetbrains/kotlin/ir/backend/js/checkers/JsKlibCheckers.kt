@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.ir.IrDiagnosticReporter
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.backend.js.checkers.declarations.JsKlibEsModuleExportsChecker
+import org.jetbrains.kotlin.ir.backend.js.checkers.declarations.JsKlibFileClashChecker
 import org.jetbrains.kotlin.ir.backend.js.checkers.declarations.JsKlibOtherModuleExportsChecker
 import org.jetbrains.kotlin.ir.backend.js.checkers.expressions.JsKlibJsCodeCallChecker
 import org.jetbrains.kotlin.ir.declarations.IrDeclaration
@@ -21,6 +22,8 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.library.SerializedIrFile
 
 object JsKlibCheckers {
+    private val moduleChecker = listOf(JsKlibFileClashChecker)
+
     private val exportedDeclarationsCheckers = listOf(
         JsKlibEsModuleExportsChecker,
         JsKlibOtherModuleExportsChecker
@@ -57,6 +60,9 @@ object JsKlibCheckers {
                     for (checker in exportedDeclarationsCheckers) {
                         checker.check(exportedDeclarations, this.diagnosticContext, diagnosticReporter)
                     }
+                }
+                for (checker in moduleChecker) {
+                    checker.check(declaration, this.diagnosticContext, diagnosticReporter)
                 }
                 super.visitModuleFragment(declaration)
             }
