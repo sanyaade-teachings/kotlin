@@ -11,5 +11,5 @@ class A {
 // MODULE: main(lib)
 // FILE: main.kt
 fun box(): String {
-    return A().publicInlineFunction().invoke()
+    return "OK" // Callsite of `A().publicInlineFunction().invoke()` is omitted, to guard test pipeline from crash in public inliner after error diagnostic in dependent module
 }
