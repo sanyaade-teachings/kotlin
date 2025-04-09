@@ -10,9 +10,9 @@ public typealias descriptors = ExportedKotlinPackages.kotlinx.serialization.desc
 public typealias builtins = ExportedKotlinPackages.kotlinx.serialization.builtins
 public typealias encoding = ExportedKotlinPackages.kotlinx.serialization.encoding
 public typealias BinaryFormat = ExportedKotlinPackages.kotlinx.serialization.BinaryFormat
+typealias _BinaryFormat = ExportedKotlinPackages.kotlinx.serialization._BinaryFormat
 public typealias ContextualSerializer = ExportedKotlinPackages.kotlinx.serialization.ContextualSerializer
 public typealias KSerializer = ExportedKotlinPackages.kotlinx.serialization.KSerializer
-typealias _BinaryFormat = ExportedKotlinPackages.kotlinx.serialization._BinaryFormat
 public typealias MissingFieldException = ExportedKotlinPackages.kotlinx.serialization.MissingFieldException
 public typealias PolymorphicSerializer = ExportedKotlinPackages.kotlinx.serialization.PolymorphicSerializer
 public typealias SealedClassSerializer = ExportedKotlinPackages.kotlinx.serialization.SealedClassSerializer
@@ -135,6 +135,8 @@ public extension ExportedKotlinPackages.kotlinx.serialization {
     @objc(_BinaryFormat)
     protocol _BinaryFormat: ExportedKotlinPackages.kotlinx.serialization._SerialFormat {
     }
+    public protocol KSerializer: KotlinRuntime.KotlinBase {
+    }
     public protocol SerialFormat: KotlinRuntime.KotlinBase {
         var serializersModule: ExportedKotlinPackages.kotlinx.serialization.modules.SerializersModule {
             get
@@ -155,6 +157,8 @@ public extension ExportedKotlinPackages.kotlinx.serialization {
     }
     @objc(_StringFormat)
     protocol _StringFormat: ExportedKotlinPackages.kotlinx.serialization._SerialFormat {
+    }
+    public final class ContextualSerializer: KotlinRuntime.KotlinBase, KotlinRuntimeSupport._KotlinBridged {
     }
     public final class MissingFieldException: ExportedKotlinPackages.kotlinx.serialization.SerializationException {
         public var missingFields: [Swift.String] {

@@ -53,6 +53,14 @@ public protocol _ExportedKotlinPackages_packagewithprotocols_ContainerProtocol_N
 @objc(_Foeble)
 protocol _Foeble {
 }
+@objc(_SealedBazzable)
+protocol _SealedBazzable: main._SealedFoeble {
+}
+@objc(_SealedFoeble)
+protocol _SealedFoeble {
+}
+public protocol _SealedFoeble_SealedBarable: KotlinRuntime.KotlinBase, main.SealedFoeble {
+}
 @objc(_SiblingProtocol)
 protocol _SiblingProtocol {
 }
@@ -61,6 +69,9 @@ protocol __ContainerProtocol_NestedProtocol {
 }
 @objc(__ExportedKotlinPackages_packagewithprotocols_ContainerProtocol_NestedProtocol)
 protocol __ExportedKotlinPackages_packagewithprotocols_ContainerProtocol_NestedProtocol {
+}
+@objc(__SealedFoeble_SealedBarable)
+protocol __SealedFoeble_SealedBarable: main._SealedFoeble {
 }
 public final class Bar: KotlinRuntime.KotlinBase, main.Barable, main._Barable, main.Foeble, main._Foeble, main.Bazzable, main._Bazzable, KotlinRuntimeSupport._KotlinBridged {
     public var baz: main.Bar {
@@ -121,7 +132,7 @@ public final class MyObject: KotlinRuntime.KotlinBase, KotlinRuntimeSupport._Kot
         super.init(__externalRCRef: __externalRCRef)
     }
 }
-public final class SomeBazzable: KotlinRuntime.KotlinBase, main.SealedBazzable, KotlinRuntimeSupport._KotlinBridged {
+public final class SomeBazzable: KotlinRuntime.KotlinBase, main.SealedBazzable, main._SealedBazzable, KotlinRuntimeSupport._KotlinBridged {
     public static var shared: main.SomeBazzable {
         get {
             return main.SomeBazzable(__externalRCRef: __root___SomeBazzable_get())
@@ -184,7 +195,7 @@ public final class _ExportedKotlinPackages_packagewithprotocols_SiblingProtocol_
         super.init(__externalRCRef: __externalRCRef)
     }
 }
-public final class _SealedFoeble_SomeBarable: KotlinRuntime.KotlinBase, main._SealedFoeble_SealedBarable, KotlinRuntimeSupport._KotlinBridged {
+public final class _SealedFoeble_SomeBarable: KotlinRuntime.KotlinBase, main._SealedFoeble_SealedBarable, main.__SealedFoeble_SealedBarable, KotlinRuntimeSupport._KotlinBridged {
     public static var shared: main._SealedFoeble_SomeBarable {
         get {
             return main._SealedFoeble_SomeBarable(__externalRCRef: SealedFoeble_SomeBarable_get())
@@ -199,7 +210,7 @@ public final class _SealedFoeble_SomeBarable: KotlinRuntime.KotlinBase, main._Se
         super.init(__externalRCRef: __externalRCRef)
     }
 }
-public final class _SealedFoeble_SomeFoeble: KotlinRuntime.KotlinBase, main.SealedFoeble, KotlinRuntimeSupport._KotlinBridged {
+public final class _SealedFoeble_SomeFoeble: KotlinRuntime.KotlinBase, main.SealedFoeble, main._SealedFoeble, KotlinRuntimeSupport._KotlinBridged {
     public static var shared: main._SealedFoeble_SomeFoeble {
         get {
             return main._SealedFoeble_SomeFoeble(__externalRCRef: SealedFoeble_SomeFoeble_get())
@@ -377,6 +388,10 @@ extension KotlinRuntimeSupport._KotlinExistential: main.Barable where Wrapped : 
 }
 extension KotlinRuntimeSupport._KotlinExistential: main.Bazzable where Wrapped : main._Bazzable {
 }
+extension KotlinRuntimeSupport._KotlinExistential: main.SealedFoeble where Wrapped : main._SealedFoeble {
+}
+extension KotlinRuntimeSupport._KotlinExistential: main.SealedBazzable where Wrapped : main._SealedBazzable {
+}
 extension KotlinRuntimeSupport._KotlinExistential: ExportedKotlinPackages.packagewithprotocols.ContainerProtocol where Wrapped : ExportedKotlinPackages.packagewithprotocols._ContainerProtocol {
 }
 extension KotlinRuntimeSupport._KotlinExistential: ExportedKotlinPackages.packagewithprotocols.SiblingProtocol where Wrapped : ExportedKotlinPackages.packagewithprotocols._SiblingProtocol {
@@ -387,7 +402,11 @@ extension KotlinRuntimeSupport._KotlinExistential: ExportedKotlinPackages.repeat
 }
 extension KotlinRuntimeSupport._KotlinExistential: main._ContainerProtocol_NestedProtocol where Wrapped : main.__ContainerProtocol_NestedProtocol {
 }
+extension KotlinRuntimeSupport._KotlinExistential: main._SealedFoeble_SealedBarable where Wrapped : main.__SealedFoeble_SealedBarable {
+}
 extension KotlinRuntimeSupport._KotlinExistential: main._ExportedKotlinPackages_packagewithprotocols_ContainerProtocol_NestedProtocol where Wrapped : main.__ExportedKotlinPackages_packagewithprotocols_ContainerProtocol_NestedProtocol {
+}
+public extension main._SealedFoeble_SealedBarable where Self : KotlinRuntimeSupport._KotlinBridged {
 }
 public extension ExportedKotlinPackages.packagewithprotocols {
     public protocol ContainerProtocol: KotlinRuntime.KotlinBase {
