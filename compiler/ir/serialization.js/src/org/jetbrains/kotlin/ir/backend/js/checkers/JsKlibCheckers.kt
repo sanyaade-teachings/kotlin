@@ -37,7 +37,7 @@ object JsKlibCheckers {
         diagnosticReporter: IrDiagnosticReporter,
         configuration: CompilerConfiguration,
         doCheckCalls: Boolean,
-        doCheckExportedDeclarations: Boolean,
+        doModuleLevelChecks: Boolean,
         cleanFiles: List<SerializedIrFile> = listOf(),
         exportedNames: Map<IrFile, Map<IrDeclarationWithName, String>> = mapOf(),
     ): IrVisitorVoid {
@@ -55,14 +55,14 @@ object JsKlibCheckers {
             }
 
             override fun visitModuleFragment(declaration: IrModuleFragment) {
-                if (doCheckExportedDeclarations) {
+                if (doModuleLevelChecks) {
                     val exportedDeclarations = JsKlibExportingDeclaration.collectDeclarations(cleanFiles, declaration.files, exportedNames)
                     for (checker in exportedDeclarationsCheckers) {
                         checker.check(exportedDeclarations, this.diagnosticContext, diagnosticReporter)
                     }
-                }
-                for (checker in moduleChecker) {
-                    checker.check(declaration, this.diagnosticContext, diagnosticReporter)
+                    for (checker in moduleChecker) {
+                        checker.check(declaration, this.diagnosticContext, diagnosticReporter)
+                    }
                 }
                 super.visitModuleFragment(declaration)
             }
