@@ -43,6 +43,7 @@ sourceSets {
 }
 
 projectTest(parallel = true) {
+    dependsOn(":dist")
     workingDir = rootDir
     useJsIrBoxTests(version = version, buildDir = layout.buildDirectory)
 }

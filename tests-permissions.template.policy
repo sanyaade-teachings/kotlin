@@ -25,6 +25,8 @@ grant {
     permission java.util.PropertyPermission "platform.random.idempotence.check.rate", "write";
     permission java.util.PropertyPermission "apple.awt.UIElement", "write";
     permission java.io.FilePermission "{{gradle_user_home}}/-", "read,write,delete,execute";
+    // SystemInfo.isCrostini()
+    permission java.io.FilePermission "/dev/.cros_milestone", "read";
 
     // This is only for debug
     // permission java.io.FilePermission "/Users/cristiangarcia/Library/Caches/JetBrains/IntelliJIdea2024.3/captureAgent/debugger-agent.jar", "read";
