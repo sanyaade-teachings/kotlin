@@ -44,7 +44,8 @@ public fun <T> sequenceOf(vararg elements: T): Sequence<T> = elements.asSequence
  * @return a sequence containing only the specified [element].
  * @sample samples.collections.Sequences.Building.sequenceOfSingleValue
  */
-@SinceKotlin("2.1")
+@Suppress("NEWER_VERSION_IN_SINCE_KOTLIN")
+@SinceKotlin("2.2")
 public fun <T> sequenceOf(element: T): Sequence<T> = Sequence {
     object : Iterator<T> {
         private var _hasNext: Boolean = true
@@ -65,7 +66,8 @@ public fun <T> sequenceOf(element: T): Sequence<T> = Sequence {
  * @return an empty sequence.
  * @sample samples.collections.Sequences.Building.sequenceOfEmpty
  */
-@SinceKotlin("2.1")
+@Suppress("NEWER_VERSION_IN_SINCE_KOTLIN")
+@SinceKotlin("2.2")
 @InlineOnly
 public inline fun <T> sequenceOf(): Sequence<T> = emptySequence()
 
