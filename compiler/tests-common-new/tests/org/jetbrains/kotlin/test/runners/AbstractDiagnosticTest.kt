@@ -110,7 +110,6 @@ abstract class AbstractDiagnosticTest : AbstractKotlinCompilerTest() {
             defaultDirectives {
                 RETURN_VALUE_CHECKER_MODE with ReturnValueCheckerMode.CHECKER
                 +WITH_EXTRA_CHECKERS
-                DIAGNOSTICS with "-UNUSED_VARIABLE"
             }
         }
 
@@ -118,7 +117,6 @@ abstract class AbstractDiagnosticTest : AbstractKotlinCompilerTest() {
             defaultDirectives {
                 RETURN_VALUE_CHECKER_MODE with ReturnValueCheckerMode.FULL
                 +WITH_EXTRA_CHECKERS
-                DIAGNOSTICS with "-UNUSED_VARIABLE"
             }
         }
 
