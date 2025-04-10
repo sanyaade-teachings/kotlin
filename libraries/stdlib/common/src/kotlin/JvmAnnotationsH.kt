@@ -245,7 +245,7 @@ public expect annotation class JvmSerializableLambda()
  */
 @Retention(AnnotationRetention.BINARY)
 @MustBeDocumented
-@SinceKotlin("2.1")
+@SinceKotlin("2.2")
 @ExperimentalStdlibApi
 @OptionalExpectation
 @Target(

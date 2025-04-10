@@ -215,7 +215,7 @@ public actual annotation class JvmRecord
  */
 @Retention(AnnotationRetention.BINARY)
 @MustBeDocumented
-@SinceKotlin("2.1")
+@SinceKotlin("2.2")
 @ExperimentalStdlibApi
 @Target(
     // function-like
