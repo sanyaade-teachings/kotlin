@@ -9,6 +9,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.*
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.process.ExecOperations
@@ -174,6 +176,7 @@ internal constructor(
     private val execOperations: ExecOperations,
     private val projectLayout: ProjectLayout,
     private val fileOperations: FileSystemOperations,
+    private val objectsFactory: ObjectFactory,
 ) : DefaultTask(), UsesKotlinToolingDiagnostics {
     init {
         onlyIf { HostManager.hostIsMac }
@@ -198,7 +201,12 @@ internal constructor(
     var buildType: NativeBuildType = NativeBuildType.RELEASE
 
     private val groupedFrameworkFiles: MutableMap<AppleTarget, MutableList<FrameworkDescriptor>> = mutableMapOf()
-    private val groupedResourcesFiles: MutableMap<AppleTarget, MutableList<File>> = mutableMapOf()
+
+    @get:Internal
+    internal val groupedResourcesFiles: MapProperty<AppleTarget, FileCollection> = objectsFactory.mapProperty(
+        AppleTarget::class.java,
+        FileCollection::class.java
+    )
 
     @get:IgnoreEmptyDirectories
     @get:InputFiles
@@ -268,7 +276,17 @@ internal constructor(
     fun addTargetResources(resources: Provider<File>, target: KonanTarget) {
         inputs.files(resources)
         val group = AppleTarget.values().first { it.targets.contains(target) }
-        groupedResourcesFiles.getOrPut(group) { mutableListOf() }.add(resources.get())
+
+        // Get the current FileCollection for this target or create a new one
+        val existingFiles = groupedResourcesFiles.get().getOrElse(group) {
+            objectsFactory.fileCollection()
+        }
+
+        // Create a new FileCollection with the existing files plus the new one
+        val updatedFiles = existingFiles.plus(objectsFactory.fileCollection().from(resources))
+
+        // Update the map with the new FileCollection for this target
+        groupedResourcesFiles.put(group, updatedFiles)
     }
 
     @TaskAction
@@ -308,37 +326,35 @@ internal constructor(
     }
 
     internal fun xcframeworkSlices(frameworkName: String) = groupedFrameworkFiles.entries.mapNotNull { (group, files) ->
-        val resources = xcframeworkResources(group)
         when {
-            files.size == 1 -> FrameworkSlice(files.first(), resources)
+            files.size == 1 -> FrameworkSlice(
+                files.first(),
+                xcframeworkResources(group).orNull
+            )
             files.size > 1 -> FrameworkSlice(
                 FrameworkDescriptor(
                     fatTargetDir(group).resolve("${frameworkName}.framework"),
                     files.all { it.isStatic },
                     group.targets.first() //will be not used
                 ),
-                resources
+                xcframeworkResources(group).orNull
             )
             else -> null
         }
     }
 
-    internal fun xcframeworkResources(group: AppleTarget) = groupedResourcesFiles[group]?.let { files ->
-        when {
-            files.size == 1 -> files.firstOrNull()
-            files.size > 1 -> combineFrameworksResources(
-                files,
-                fatTargetDir(group).resolve(lowerCamelCaseName(group.targetName, "resources"))
-            )
-            else -> null
-        }
+    internal fun xcframeworkResources(group: AppleTarget): Provider<File> = groupedResourcesFiles.getting(group).map { fileCollection ->
+        val files = fileCollection.files
+        if (files.size > 1) {
+            fatTargetDir(group).resolve(lowerCamelCaseName(group.targetName, "resources")).also { fatDir ->
+                combineFrameworksResources(files, fatDir)
+            }
+        } else files.first()
     }
 
     private fun fatTargetDir(appleTarget: AppleTarget) = fatFrameworksDir.resolve(appleTarget.targetName)
 
-    private fun combineFrameworksResources(resources: Iterable<File>, output: File): File? {
-        if (resources.count() == 0) return null
-
+    private fun combineFrameworksResources(resources: Iterable<File>, output: File) {
         fileOperations.sync {
             it.from(resources)
             it.into(output)
@@ -349,8 +365,6 @@ internal constructor(
              */
             it.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         }
-
-        return output
     }
 
     internal fun xcodebuildArguments(
