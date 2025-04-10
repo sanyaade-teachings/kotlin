@@ -42,6 +42,7 @@ fun box(): String {
     val wrapperClass = Wrapper::class.java
     val exampleClass = Example::class.java
     val methods = exampleClass.getDeclaredMethods()
+    val fields = exampleClass.getDeclaredFields()
 
     val genericArgumentMethod = methods.single { it.name.startsWith("genericArgument") }
     require(genericArgumentMethod.toGenericString() == "public static final <R> void ${exampleClass.name}.${genericArgumentMethod.name}(${wrapperClass.name}<java.lang.Integer>,${wrapperClass.name}<R>)") {
@@ -76,6 +77,16 @@ fun box(): String {
     val nullablePropertyGetter = methods.single { it.name.startsWith("getNullableProperty") }
     require(nullablePropertyGetter.toGenericString() == "public final ${inlineClass.name}<java.lang.Integer> ${exampleClass.name}.${nullablePropertyGetter.name}()") {
         "Unexpected method signature for 'getNullableProperty': ${nullablePropertyGetter.toGenericString()}"
+    }
+
+    val instantiatedPropertyField = fields.single { it.name.startsWith("instantiatedProperty") }
+    require(instantiatedPropertyField.toGenericString() == "private static final ${wrapperClass.name}<java.lang.Integer> ${exampleClass.name}.${instantiatedPropertyField.name}") {
+        "Unexpected field signature for 'instantiatedProperty': ${instantiatedPropertyField.toGenericString()}"
+    }
+
+    val nullablePropertyField = fields.single { it.name.startsWith("nullableProperty") }
+    require(nullablePropertyField.toGenericString() == "private static final ${inlineClass.name}<java.lang.Integer> ${exampleClass.name}.${nullablePropertyField.name}") {
+        "Unexpected field signature for 'nullableProperty': ${nullablePropertyField.toGenericString()}"
     }
 
     return "OK"
