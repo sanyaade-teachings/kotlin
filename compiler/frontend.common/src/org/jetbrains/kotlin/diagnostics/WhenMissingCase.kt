@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.diagnostics
 
+import org.jetbrains.kotlin.KtSourceElement
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.renderer.render
@@ -64,6 +65,14 @@ sealed class WhenMissingCase {
         override fun toString(): String {
             return callableId.callableName.render()
         }
+    }
+
+    /**
+     * This variant actually includes both inferred and explicit checks.
+     * This was done to avoid touching code that may be used by K1 too much.
+     */
+    class SymbolEqualsCheck(val classId: ClassId, val source: KtSourceElement?) : WhenMissingCase() {
+        override val branchConditionText: String get() = classId.shortClassName.asString()
     }
 
     override fun toString(): String {

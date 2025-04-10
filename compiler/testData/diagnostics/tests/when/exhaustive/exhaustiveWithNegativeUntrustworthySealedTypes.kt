@@ -1,4 +1,5 @@
 // RUN_PIPELINE_TILL: BACKEND
+// RENDER_DIAGNOSTICS_MESSAGES
 
 open class PhantomEquivalence {
     override fun equals(other: Any?) = other is PhantomEquivalence
