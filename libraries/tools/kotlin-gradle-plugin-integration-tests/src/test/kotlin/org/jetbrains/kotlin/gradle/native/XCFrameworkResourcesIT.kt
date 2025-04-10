@@ -240,6 +240,11 @@ class XCFrameworkResourcesIT : KGPBaseTest() {
 
                 xcframeworkPath.copyToRecursively(projectPath.resolve("iosApp/Shared.xcframework"), followLinks = false, overwrite = true)
 
+                /**
+                 * The Shared.framework is copied into the app bundle along with its resources.
+                 * Note: the Shared binary inside this framework is currently only a stub (symbol stub dylib),
+                 * meaning it contains no actual implementation code — just placeholders for the linker.
+                 */
                 buildXcodeProject(
                     xcodeproj = projectPath.resolve("iosApp/XCTestApp.xcodeproj"),
                     scheme = "XCTestAppTests",
