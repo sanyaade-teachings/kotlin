@@ -3,9 +3,12 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.konan.test.blackbox
+package org.jetbrains.kotlin.konan.test.abi
 
 import org.jetbrains.kotlin.incremental.createDirectory
+import org.jetbrains.kotlin.konan.test.blackbox.AbstractNativeSimpleTest
+import org.jetbrains.kotlin.konan.test.blackbox.buildDir
+import org.jetbrains.kotlin.konan.test.blackbox.compileToLibrary
 import org.jetbrains.kotlin.konan.test.blackbox.support.TestCompilerArgs
 import org.jetbrains.kotlin.konan.test.blackbox.support.compilation.CompilationToolException
 import org.jetbrains.kotlin.konan.test.blackbox.support.compilation.TestCompilationArtifact
@@ -48,7 +51,7 @@ class MetadataKlibAbiCompatibilityTest : AbstractNativeSimpleTest() {
     private fun compileLibraryWithIncompatibleAbiVersion(
         sourceDir: File,
         outputDir: File,
-        extraArgs: List<String> = listOf()
+        extraArgs: List<String> = listOf(),
     ): TestCompilationArtifact.KLIB {
         val incompatibleAbiVersion = CURRENT.copy(minor = CURRENT.minor + 1)
         val compilerArgs = TestCompilerArgs(extraArgs + "-Xklib-abi-version=$incompatibleAbiVersion")
