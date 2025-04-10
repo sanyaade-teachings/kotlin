@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.internal.compilerRunner.native
 
 import com.google.gson.Gson
 import org.gradle.api.file.FileCollection
-import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
@@ -23,11 +22,13 @@ import org.jetbrains.kotlin.cli.common.arguments.argumentAnnotation
 import org.jetbrains.kotlin.compilerRunner.KotlinCompilerArgumentsLogLevel
 import org.jetbrains.kotlin.gradle.internal.ClassLoadersCachingBuildService
 import org.jetbrains.kotlin.gradle.internal.ParentClassLoaderProvider
+import org.jetbrains.kotlin.gradle.logging.GradleErrorMessageCollector
 import org.jetbrains.kotlin.gradle.logging.gradleLogLevel
 import org.jetbrains.kotlin.gradle.plugin.statistics.BuildFusService
 import org.jetbrains.kotlin.gradle.plugin.statistics.NativeArgumentMetrics
 import org.jetbrains.kotlin.gradle.utils.escapeStringCharacters
 import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.statistics.FusMetricRetrievalException
 import org.jetbrains.kotlin.util.UnitStats
 import java.io.File
 import java.io.IOException
@@ -50,6 +51,7 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
         private val dumpPerfArgument = CommonCompilerArguments::dumpPerf.argumentAnnotation.value
     }
     private val logger = Logging.getLogger(toolSpec.displayName.get())
+    private val errorMessageCollector = GradleErrorMessageCollector(logger)
     private val classLoadersCachingBuildService: ClassLoadersCachingBuildService
         get() = classLoadersCachingBuildServiceProvider.get()
     private val metricsReporter get() = metricsReporterProvider.get()
@@ -118,7 +120,7 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
                     toolSpec.environmentBlacklist.forEach { spec.environment.remove(it) }
                     spec.args(toolArgsPair.second)
                 }
-                metricsReporter.parseCompilerMetricsFromFile(reportFile, logger)
+                metricsReporter.parseCompilerMetricsFromFile(reportFile)
             } finally {
                 toolArgsPair.first?.let {
                     try {
@@ -171,7 +173,7 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
                         val toolArgsWithPerformance = toolArgs.toMutableList()
                         toolArgsWithPerformance.add("$dumpPerfArgument=${reportFile.toAbsolutePath()}")
                         entryPoint.invoke(null, toolArgsWithPerformance.toTypedArray())
-                        metricsReporter.parseCompilerMetricsFromFile(reportFile.toFile(), logger)
+                        metricsReporter.parseCompilerMetricsFromFile(reportFile.toFile())
                     } else {
                         entryPoint.invoke(null, toolArgs.toTypedArray())
                     }
@@ -285,19 +287,22 @@ internal abstract class KotlinNativeToolRunner @Inject constructor(
         val compilerArgumentsLogLevel: KotlinCompilerArgumentsLogLevel,
         val arguments: List<String>,
     )
-}
 
-internal fun BuildMetricsReporter<GradleBuildTime, GradleBuildPerformanceMetric>.parseCompilerMetricsFromFile(jsonFile: File, logger: Logger) {
-    if (!jsonFile.isFile()) return
-    try {
-        val unitStats = Gson().fromJson(jsonFile.readText(), UnitStats::class.java)
 
-        unitStats?.analysisStats?.millis?.also { addTimeMetricMs(GradleBuildTime.CODE_ANALYSIS, it) }
-        unitStats?.initStats?.millis?.also { addTimeMetricMs(GradleBuildTime.COMPILER_INITIALIZATION, it) }
-        unitStats?.translationToIrStats?.millis?.also { addTimeMetricMs(GradleBuildTime.TRANSLATION_TO_IR, it) }
-        unitStats?.irLoweringStats?.millis?.also { addTimeMetricMs(GradleBuildTime.IR_LOWERING, it) }
-        unitStats?.backendStats?.millis?.also { addTimeMetricMs(GradleBuildTime.BACKEND, it) }
-    } catch (e: Exception) {
-        logger.warn("Failed to parse metrics from file ${jsonFile.absolutePath}", e)
+    internal fun BuildMetricsReporter<GradleBuildTime, GradleBuildPerformanceMetric>.parseCompilerMetricsFromFile(
+        jsonFile: File,
+    ) {
+        if (!jsonFile.isFile()) return
+        try {
+            val unitStats = Gson().fromJson(jsonFile.readText(), UnitStats::class.java)
+
+            unitStats?.analysisStats?.millis?.also { addTimeMetricMs(GradleBuildTime.CODE_ANALYSIS, it) }
+            unitStats?.initStats?.millis?.also { addTimeMetricMs(GradleBuildTime.COMPILER_INITIALIZATION, it) }
+            unitStats?.translationToIrStats?.millis?.also { addTimeMetricMs(GradleBuildTime.TRANSLATION_TO_IR, it) }
+            unitStats?.irLoweringStats?.millis?.also { addTimeMetricMs(GradleBuildTime.IR_LOWERING, it) }
+            unitStats?.backendStats?.millis?.also { addTimeMetricMs(GradleBuildTime.BACKEND, it) }
+        } catch (e: Exception) {
+            errorMessageCollector.report(FusMetricRetrievalException("Failed to parse metrics from file ${jsonFile.absolutePath}", e), location = null)
+        }
     }
 }

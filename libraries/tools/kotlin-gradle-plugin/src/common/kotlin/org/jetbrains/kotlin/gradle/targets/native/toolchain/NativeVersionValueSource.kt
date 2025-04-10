@@ -103,7 +103,9 @@ internal abstract class NativeVersionValueSource :
     ) {
         if (reinstallFlag && canBeReinstalled) {
             logger.info("Removing Kotlin/Native bundle")
-            bundleDir.deleteRecursively()
+            if (!bundleDir.deleteRecursively()) {
+                logger.warn("Failed to remove Kotlin/Native bundle from ${bundleDir.absolutePath}")
+            }
             canBeReinstalled = false // we don't need to reinstall k/n if it was reinstalled once during the same build
         }
     }

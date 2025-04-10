@@ -64,7 +64,7 @@ internal fun String.assertNoDiagnostic(diagnosticFactory: ToolingDiagnosticFacto
  * [org.jetbrains.kotlin.gradle.plugin.diagnostics.KotlinToolingDiagnostics.InternalKotlinGradlePluginPropertiesUsed].
  * For the sake of clarity, this diagnostic is filtered by default.
  */
-fun BuildResult.extractProjectsAndTheirDiagnostics(kotlinVersion: String? = null, kotlinNativeVersion: String? = null): String =
+fun BuildResult.extractProjectsAndTheirDiagnostics(): String =
     buildString {
         var diagnosticStarted = false
         var stacktraceStarted = false
@@ -76,9 +76,6 @@ fun BuildResult.extractProjectsAndTheirDiagnostics(kotlinVersion: String? = null
                 "Unexpected start of diagnostic $line on line ${lineIndex + 1}. The end of the previous diagnostic wasn't found yet"
             }
 
-            var lineWithPlaceHolders = kotlinVersion?.let { line.replace(it, "<kotlin_version>") } ?: line
-            lineWithPlaceHolders = kotlinNativeVersion?.let { line.replace(it, "<kotlin_native_version>") } ?: lineWithPlaceHolders
-            currentDiagnostic += lineWithPlaceHolders
             diagnosticStarted = true
         }
 
