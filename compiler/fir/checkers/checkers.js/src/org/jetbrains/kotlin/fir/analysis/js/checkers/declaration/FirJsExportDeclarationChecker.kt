@@ -70,10 +70,6 @@ object FirJsExportDeclarationChecker : FirBasicDeclarationChecker(MppCheckerKind
             reporter.reportOn(declaration.source, FirJsErrors.WRONG_EXPORTED_DECLARATION, kind)
         }
 
-        if (declaration.isExpect) {
-            reportWrongExportedDeclaration("expect")
-        }
-
         validateDeclarationOnConsumableName(declaration, context, reporter)
 
         when (declaration) {
