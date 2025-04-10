@@ -136,9 +136,20 @@ internal class ClassListSnapshotterWithInlinedClassSupport(
             }
         }
 
+        /**
+         * Back to drawing board
+         *
+         * ~~1. Get inlined snapshot of all inner classes~~ - scratch that - we can't use it so it doesn't matter
+         * 2. Process all classes
+         *
+         * 3. When inside of a class with inline fun:
+         * 3.1. inline fun -> set of classes by prefix
+         * 3.2. inline fun -> set of classes by direct INSTANCE usage
+         * 3.3. recurse ->
+         */
+
         //TODO drop printlns
-        println(sortedInnerClasses.map {it.classFile.getClassName().internalName}.joinToString(", "))
-        println(sortedInnerClasses.binarySearchBy("InlinedLocalClassKt\$calculate") { it.classFile.getClassName().internalName })
+        println("all sorted: " + sortedInnerClasses.map {it.classFile.getClassName().internalName}.joinToString(", "))
 
         return classes.map {
             makeOrReuseClassSnapshot(it)
@@ -162,7 +173,8 @@ internal class ClassListSnapshotterWithInlinedClassSupport(
                 val extraInfo = ExtraInfoGeneratorWithInlinedClassSnapshotting(
                     classMultiHashProvider = object : ClassMultiHashProvider {
                         override fun searchAndGetFullAbiHashOfUsedClasses(inlinedClassPrefix: String): Long {
-                            println(inlinedClassPrefix)
+                            println("searching for: " + inlinedClassPrefix)
+                            println("have: ${classFileToInlinedSnapshotMap}")
 
                             var aggregate = 0L
 
@@ -179,6 +191,7 @@ internal class ClassListSnapshotterWithInlinedClassSupport(
                                 &&
                                 sortedInnerClasses[insertPosition].classFile.getClassName().internalName.startsWith(inlinedClassPrefix)
                             ) {
+                                println("checking ${sortedInnerClasses[insertPosition].classFile.getClassName().internalName}")
                                 aggregate = aggregate xor classFileToInlinedSnapshotMap[sortedInnerClasses[insertPosition]]!!
                                 insertPosition += 1
                             }

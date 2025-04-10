@@ -299,7 +299,7 @@ class InlinedLambdaChangeTest : BaseCompilationTest() {
             lib.replaceFileWithVersion("SomeClass.kt", "withOverload")
 
             lib.compile(expectedDirtySet = setOf("SomeClass.kt", "callable.kt"))
-            app.compile(expectedDirtySet = setOf())
+            app.compile(expectedDirtySet = setOf("callSite.kt"))
             app.execute(mainClass = "CallSiteKt", exactOutput = WITH_NEW_LAMBDA_BODY)
         }
     }
