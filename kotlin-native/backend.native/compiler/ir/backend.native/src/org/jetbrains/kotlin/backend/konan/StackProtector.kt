@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.backend.konan.llvm.LlvmFunctionAttribute
 import org.jetbrains.kotlin.backend.konan.llvm.addLlvmFunctionEnumAttribute
 import org.jetbrains.kotlin.backend.konan.llvm.getFunctions
 import org.jetbrains.kotlin.backend.konan.llvm.name
+import org.jetbrains.kotlin.konan.target.Family
 import kotlin.sequences.forEach
 
 enum class StackProtectorMode {
@@ -32,4 +33,10 @@ internal fun applySspAttributes(context: OptimizationState, module: LLVMModuleRe
                 .filter { LLVMIsDeclaration(it) == 0 && it.name != "__clang_call_terminate" }
                 .forEach { addLlvmFunctionEnumAttribute(it, sspAttribute) }
     }
+}
+
+internal fun StackProtectorMode.additionalLinkerArgsFor(family: Family): List<String> {
+    if (this == StackProtectorMode.NO || family != Family.MINGW) return emptyList()
+
+    return listOf("-lssp")
 }

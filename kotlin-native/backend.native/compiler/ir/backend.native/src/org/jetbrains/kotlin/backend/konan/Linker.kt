@@ -131,9 +131,11 @@ internal class Linker(
         }
         File(executable).delete()
 
+        val sspLinkerArgs = config.stackProtectorMode.additionalLinkerArgsFor(target.family)
+
         val linkerArgs = asLinkerArgs(config.configuration.getNotNull(KonanConfigKeys.LINKER_ARGS)) +
                 caches.dynamic +
-                libraryProvidedLinkerFlags + additionalLinkerArgs
+                libraryProvidedLinkerFlags + additionalLinkerArgs + sspLinkerArgs
 
         return with(linker) {
             LinkerArguments(
