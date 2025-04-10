@@ -345,6 +345,7 @@ internal constructor(
             /**
              * Exclude duplicates to prevent copying the same file multiple times.
              * It's required because we are combining frameworks to a single fat-framework.
+             * In case of a resource collision, only the first file will be copied and this is a known limitation.
              */
             it.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         }
