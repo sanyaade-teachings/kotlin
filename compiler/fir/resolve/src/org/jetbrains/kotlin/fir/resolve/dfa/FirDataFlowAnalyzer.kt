@@ -598,15 +598,24 @@ abstract class FirDataFlowAnalyzer(
 
         if (leftOperandVariable !is RealVariable && rightOperandVariable !is RealVariable) return
 
-        if (operation == FirOperation.EQ || operation == FirOperation.NOT_EQ) {
-            if (hasUntrustworthyOverriddenEquals(leftOperandType, components.session, components.scopeSession)) return
+        val equalsTrustworthiness = when {
+            operation != FirOperation.EQ && operation != FirOperation.NOT_EQ -> EqualsOverrideTrustworthiness.SAFE_FOR_SMART_CAST
+            else -> computeEqualsOverrideTrustworthiness(leftOperandType, components.session, components.scopeSession)
         }
 
         fun tryAddImplicationsFor(variable: DataFlowVariable?, otherOperand: FirExpression) {
             if (variable !is RealVariable) return
-            flow.addImplication((expressionVariable eq isEq) implies (variable typeEq otherOperand.resolvedType))
 
-            (otherOperand as? FirResolvable)?.calleeReference?.toResolvedBaseSymbol()?.let { symbol ->
+            if (equalsTrustworthiness == EqualsOverrideTrustworthiness.SAFE_FOR_SMART_CAST) {
+                flow.addImplication((expressionVariable eq isEq) implies (variable typeEq otherOperand.resolvedType))
+            }
+
+            val symbol = when (otherOperand) {
+                is FirResolvable -> otherOperand.calleeReference.toResolvedBaseSymbol()
+                is FirResolvedQualifier -> otherOperand.symbol
+                else -> null
+            }
+            if (symbol != null) {
                 flow.addImplication((expressionVariable eq !isEq) implies (variable valueNotEq symbol))
             }
         }

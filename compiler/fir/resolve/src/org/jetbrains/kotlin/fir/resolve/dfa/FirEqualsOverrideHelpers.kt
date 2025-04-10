@@ -5,10 +5,15 @@
 
 package org.jetbrains.kotlin.fir.resolve.dfa
 
-import org.jetbrains.kotlin.descriptors.Modality
+import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
+import org.jetbrains.kotlin.fir.declarations.getSealedClassInheritors
 import org.jetbrains.kotlin.fir.declarations.isEquals
+import org.jetbrains.kotlin.fir.declarations.utils.isData
+import org.jetbrains.kotlin.fir.declarations.utils.isFinal
+import org.jetbrains.kotlin.fir.declarations.utils.isInlineOrValue
+import org.jetbrains.kotlin.fir.declarations.utils.isSealed
 import org.jetbrains.kotlin.fir.isSubstitutionOrIntersectionOverride
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.collectSymbolsForType
@@ -16,40 +21,100 @@ import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
 import org.jetbrains.kotlin.fir.resolve.isRealOwnerOf
 import org.jetbrains.kotlin.fir.resolve.lookupSuperTypes
 import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
+import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.scopes.getFunctions
 import org.jetbrains.kotlin.fir.scopes.unsubstitutedScope
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirClassifierSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.util.OperatorNameConventions
 
-fun hasUntrustworthyOverriddenEquals(type: ConeKotlinType, session: FirSession, scopeSession: ScopeSession): Boolean {
-    val symbolsForType = collectSymbolsForType(type, session)
-    if (symbolsForType.any { it.hasUntrustworthyEqualsOverride(session, scopeSession, checkModality = true) }) return true
+enum class EqualsOverrideTrustworthiness {
+    UNSAFE,
+    SAFE_FOR_EXHAUSTIVENESS,
+    SAFE_FOR_SMART_CAST,
+}
+
+fun computeEqualsOverrideTrustworthiness(
+    type: ConeKotlinType,
+    session: FirSession,
+    scopeSession: ScopeSession,
+): EqualsOverrideTrustworthiness {
+    return computeEqualsOverrideTrustworthiness(
+        symbolsForType = collectSymbolsForType(type, session),
+        session = session,
+        scopeSession = scopeSession,
+        visitedSymbols = mutableSetOf(),
+    )
+}
+
+fun computeEqualsOverrideTrustworthiness(
+    symbolsForType: List<FirClassSymbol<*>>,
+    session: FirSession,
+    scopeSession: ScopeSession,
+    visitedSymbols: MutableSet<FirClassifierSymbol<*>>,
+): EqualsOverrideTrustworthiness {
+    val subtypesTrustworthiness = symbolsForType
+        .maxOfOrNull { it.computeEqualsOverrideTrustworthiness(session, scopeSession, visitedSymbols) }
+        ?: EqualsOverrideTrustworthiness.SAFE_FOR_SMART_CAST
+
+    if (subtypesTrustworthiness == EqualsOverrideTrustworthiness.UNSAFE) {
+        return EqualsOverrideTrustworthiness.UNSAFE
+    }
 
     val superTypes = lookupSuperTypes(
         symbolsForType,
         lookupInterfaces = false,
         deep = true,
         session,
-        substituteTypes = false
+        substituteTypes = false,
+        visitedSymbols = visitedSymbols,
     )
-    val superClassSymbols = superTypes.mapNotNull {
-        it.fullyExpandedType(session).toRegularClassSymbol(session)
+    val superClassSymbols = superTypes.mapNotNull { it.fullyExpandedType(session).toRegularClassSymbol(session) }
+
+    val supertypesTrustworthiness = when (superClassSymbols.any { it.hasUntrustworthyEqualsOverride(session, scopeSession) }) {
+        true -> EqualsOverrideTrustworthiness.UNSAFE
+        false -> EqualsOverrideTrustworthiness.SAFE_FOR_SMART_CAST
     }
 
-    return superClassSymbols.any { it.hasUntrustworthyEqualsOverride(session, scopeSession, checkModality = false) }
+    return minOf(subtypesTrustworthiness, supertypesTrustworthiness)
 }
 
-private fun FirClassSymbol<*>.hasUntrustworthyEqualsOverride(
+private fun FirClassSymbol<*>.computeEqualsOverrideTrustworthiness(
     session: FirSession,
     scopeSession: ScopeSession,
-    checkModality: Boolean,
-): Boolean {
-    val status = resolvedStatus
-    if (checkModality && status.modality != Modality.FINAL) return true
-    if (status.isExpect) return true
+    visitedSymbols: MutableSet<FirClassifierSymbol<*>>,
+): EqualsOverrideTrustworthiness {
+    fun FirClassSymbol<*>.computeInheritorsTrustworthiness(): EqualsOverrideTrustworthiness {
+        if (this !is FirRegularClassSymbol) return EqualsOverrideTrustworthiness.UNSAFE
+
+        val inheritors = fir.getSealedClassInheritors(session).map {
+            it.toSymbol(session) as? FirClassSymbol<*> ?: return EqualsOverrideTrustworthiness.UNSAFE
+        }
+
+        // Note that `sealed class` variants may have additional supertypes
+        return computeEqualsOverrideTrustworthiness(inheritors, session, scopeSession, visitedSymbols)
+    }
+
+    return when {
+        isFinal -> when {
+            !hasUntrustworthyEqualsOverride(session, scopeSession) -> EqualsOverrideTrustworthiness.SAFE_FOR_SMART_CAST
+            isData || isInlineOrValue || classKind == ClassKind.OBJECT -> EqualsOverrideTrustworthiness.SAFE_FOR_EXHAUSTIVENESS
+            else -> EqualsOverrideTrustworthiness.UNSAFE
+        }
+        isSealed && !hasUntrustworthyEqualsOverride(session, scopeSession) -> minOf(
+            EqualsOverrideTrustworthiness.SAFE_FOR_EXHAUSTIVENESS,
+            computeInheritorsTrustworthiness(),
+        )
+        else -> EqualsOverrideTrustworthiness.UNSAFE
+    }
+}
+
+private fun FirClassSymbol<*>.hasUntrustworthyEqualsOverride(session: FirSession, scopeSession: ScopeSession): Boolean {
+    if (resolvedStatus.isExpect) return true
     if (isSmartcastPrimitive(classId)) return false
     when (classId) {
         StandardClassIds.Any -> return false
