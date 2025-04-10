@@ -27,6 +27,6 @@ fun bar(v: Variants): String {
 
     return when (v) {
         Variants.B -> "B"
-        <!REDUNDANT_ELSE_IN_WHEN!>else<!> -> "C"
+        else -> "C"
     }
 }
