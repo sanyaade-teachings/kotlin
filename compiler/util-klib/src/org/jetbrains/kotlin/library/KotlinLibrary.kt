@@ -154,10 +154,7 @@ fun BaseKotlinLibrary.unresolvedDependencies(lenient: Boolean = false): List<Unr
 val BaseKotlinLibrary.hasDependencies: Boolean
     get() = !manifestProperties.getProperty(KLIB_PROPERTY_DEPENDS).isNullOrBlank()
 
-interface KotlinLibrary : BaseKotlinLibrary, MetadataLibrary, IrLibrary {
-    val hasAbi: Boolean
-        get() = hasIr
-}
+interface KotlinLibrary : BaseKotlinLibrary, MetadataLibrary, IrLibrary
 
 @Deprecated(
     "Use BaseKotlinLibrary.isCInteropLibrary() for more precise check",
@@ -220,3 +217,6 @@ val KotlinLibrary.metadataVersion: MetadataVersion?
         val versionIntArray = BinaryVersion.parseVersionArray(versionString) ?: return null
         return MetadataVersion(*versionIntArray)
     }
+
+val KotlinLibrary.hasAbi: Boolean
+    get() = hasIr || irProviderName != null
