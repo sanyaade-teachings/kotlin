@@ -339,7 +339,7 @@ internal constructor(
     private fun combineFrameworksResources(resources: Iterable<File>, output: File): File? {
         if (resources.count() == 0) return null
 
-        fileOperations.copy {
+        fileOperations.sync {
             it.from(resources)
             it.into(output)
             /**
@@ -400,7 +400,7 @@ internal constructor(
                 }
 
                 frameworkTempDir.also { dir ->
-                    fileOperations.copy {
+                    fileOperations.sync {
                         it.from(slice.descriptor.file)
                         it.from(slice.resources)
                         it.into(dir)
