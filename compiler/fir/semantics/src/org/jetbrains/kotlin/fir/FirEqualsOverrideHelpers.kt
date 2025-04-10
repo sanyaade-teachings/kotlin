@@ -3,10 +3,9 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-package org.jetbrains.kotlin.fir.resolve.dfa
+package org.jetbrains.kotlin.fir
 
 import org.jetbrains.kotlin.descriptors.ClassKind
-import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
 import org.jetbrains.kotlin.fir.declarations.getSealedClassInheritors
 import org.jetbrains.kotlin.fir.declarations.isEquals
@@ -14,7 +13,6 @@ import org.jetbrains.kotlin.fir.declarations.utils.isData
 import org.jetbrains.kotlin.fir.declarations.utils.isFinal
 import org.jetbrains.kotlin.fir.declarations.utils.isInlineOrValue
 import org.jetbrains.kotlin.fir.declarations.utils.isSealed
-import org.jetbrains.kotlin.fir.isSubstitutionOrIntersectionOverride
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.collectSymbolsForType
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
@@ -140,11 +138,11 @@ private fun FirClassSymbol<*>.hasUntrustworthyEqualsOverride(session: FirSession
 }
 
 /**
- * Determines if type smart-casting to the specified [ClassId] can be performed when values are
+ * Determines if type smart-casting to the specified [org.jetbrains.kotlin.name.ClassId] can be performed when values are
  * compared via equality. Because this is determined using the ClassId, only standard built-in
  * types are considered.
  */
-internal fun isSmartcastPrimitive(classId: ClassId?): Boolean {
+fun isSmartcastPrimitive(classId: ClassId?): Boolean {
     return when (classId) {
         // Support other primitives as well: KT-62246.
         StandardClassIds.String,
