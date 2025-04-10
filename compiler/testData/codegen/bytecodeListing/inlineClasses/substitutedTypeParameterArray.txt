@@ -1,0 +1,35 @@
+@kotlin.Metadata
+public final class Example {
+    // source: 'substitutedTypeParameterArray.kt'
+    public final static @org.jetbrains.annotations.NotNull field INSTANCE: Example
+    private final static @org.jetbrains.annotations.NotNull field instantiatedProperty: java.lang.Object[]
+    private final static @org.jetbrains.annotations.Nullable field nullableProperty: java.lang.Object[]
+    static method <clinit>(): void
+    private method <init>(): void
+    public final method genericArgument-kR1d7H4(@org.jetbrains.annotations.NotNull p0: java.lang.Object[], @org.jetbrains.annotations.NotNull p1: java.lang.Object[]): void
+    public synthetic final method genericReturnType-FzVlPF0(p0: java.lang.Object): java.lang.Object[]
+    public final @org.jetbrains.annotations.NotNull method getInstantiatedProperty-dDho6x8(): java.lang.Object[]
+    public final @org.jetbrains.annotations.Nullable method getNullableProperty-UOloQD8(): java.lang.Object[]
+    public final method instantiatedArgument-kR1d7H4(@org.jetbrains.annotations.NotNull p0: java.lang.Object[], @org.jetbrains.annotations.NotNull p1: java.lang.Object[]): void
+    public final @org.jetbrains.annotations.Nullable method nullableReturnType-yeJOV2k(@org.jetbrains.annotations.NotNull p0: java.lang.Object[]): java.lang.Object[]
+    public final @org.jetbrains.annotations.NotNull method returnType-62u6h8k(@org.jetbrains.annotations.NotNull p0: java.lang.Object[]): java.lang.Object[]
+}
+
+@kotlin.jvm.JvmInline
+@kotlin.Metadata
+public final class WithArray {
+    // source: 'substitutedTypeParameterArray.kt'
+    private final @org.jetbrains.annotations.NotNull field x: java.lang.Object[]
+    private synthetic method <init>(p0: java.lang.Object[]): void
+    public synthetic final static method box-impl(p0: java.lang.Object[]): WithArray
+    public static @org.jetbrains.annotations.NotNull method constructor-impl(@org.jetbrains.annotations.NotNull p0: java.lang.Object[]): java.lang.Object[]
+    public method equals(p0: java.lang.Object): boolean
+    public static method equals-impl(p0: java.lang.Object[], p1: java.lang.Object): boolean
+    public final static method equals-impl0(p0: java.lang.Object[], p1: java.lang.Object[]): boolean
+    public final @org.jetbrains.annotations.NotNull method getX(): java.lang.Object[]
+    public method hashCode(): int
+    public static method hashCode-impl(p0: java.lang.Object[]): int
+    public method toString(): java.lang.String
+    public static method toString-impl(p0: java.lang.Object[]): java.lang.String
+    public synthetic final method unbox-impl(): java.lang.Object[]
+}
