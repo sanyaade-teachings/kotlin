@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.fir.analysis.js.checkers.declaration
 
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
@@ -25,7 +26,11 @@ import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualMatchingCompatibil
 object FirJsExportedActualMatchExpectChecker : FirBasicDeclarationChecker(MppCheckerKind.Platform) {
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirDeclaration) {
-        if (declaration !is FirMemberDeclaration || !declaration.isActual) return
+        if (
+            !context.languageVersionSettings.supportsFeature(LanguageFeature.AllowExpectDeclarationsInJsExport) ||
+            declaration !is FirMemberDeclaration ||
+            !declaration.isActual
+        ) return
 
         val expectForActualMatchingData = declaration.symbol.expectForActual.orEmpty()
         val correspondingExpectDeclaration =
