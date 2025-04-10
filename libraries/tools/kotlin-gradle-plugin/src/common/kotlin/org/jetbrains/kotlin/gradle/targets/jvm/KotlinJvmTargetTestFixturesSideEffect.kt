@@ -40,8 +40,11 @@ internal val ConfigureJavaTestFixturesSideEffect = KotlinTargetSideEffect { targ
             testFixturesApiElements.extendsFrom(
                 target.project.configurations.getByName(testFixturesCompilation.apiConfigurationName)
             )
-            (testFixturesSourceSet.output.classesDirs as ConfigurableFileCollection).from(
+            (testFixturesSourceSet.output.classesDirs as? ConfigurableFileCollection)?.from(
                 testFixturesCompilation.output.classesDirs
+            ) ?: target.project.logger.warn(
+                "Failed to add to $JAVA_TEST_FIXTURES_PLUGIN_ID plugin source set ${testFixturesSourceSet.name} Kotlin outputs. " +
+                        "Please create a new Kotlin issue for this problem: https://kotl.in/issue"
             )
             testFixturesSourceSet.output.dir(testFixturesCompilation.output.resourcesDir)
         }
