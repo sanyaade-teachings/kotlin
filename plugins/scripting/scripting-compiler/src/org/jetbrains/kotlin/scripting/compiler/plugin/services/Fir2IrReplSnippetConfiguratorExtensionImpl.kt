@@ -155,9 +155,13 @@ class Fir2IrReplSnippetConfiguratorExtensionImpl(
     ): IrClass {
         val actualParent = getOrBuildActualParent(classSymbol, parentClassOrSnippet, irSnippet)
         return classifierStorage.getFir2IrLazyClass(classSymbol.fir).apply {
-            parent = actualParent
-            origin = IrDeclarationOrigin.REPL_FROM_OTHER_SNIPPET
-            irSnippet.declarationsFromOtherSnippets.add(this)
+            // this may be called on the directly found usages as well as on the used declarations parents, so deduplication is needed
+            // TODO: consider rearranging the code to avoid potentially ineffective check
+            if (!irSnippet.declarationsFromOtherSnippets.contains(this)) {
+                parent = actualParent
+                origin = IrDeclarationOrigin.REPL_FROM_OTHER_SNIPPET
+                irSnippet.declarationsFromOtherSnippets.add(this)
+            }
         }
     }
 

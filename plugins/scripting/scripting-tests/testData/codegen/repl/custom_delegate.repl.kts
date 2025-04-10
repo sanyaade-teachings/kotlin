@@ -14,10 +14,19 @@ class CustomDelegate {
     }
 }
 
+//interface I {
+//    val str: String
+//}
+
 // SNIPPET
+
+//val u = object : I {
+//    override val str by CustomDelegate()
+//}
 
 val str by CustomDelegate()
 
 str
 
 // EXPECTED: <res> == "OK"
+
