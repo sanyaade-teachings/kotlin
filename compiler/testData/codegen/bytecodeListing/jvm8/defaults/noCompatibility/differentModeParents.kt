@@ -1,5 +1,7 @@
 // WITH_STDLIB
-// Check that methods are generated only in interface-disabled, class-noCompatibility case
+
+// Check that methods are generated if module with class is compiled in NO-COMPATIBILITY mode
+// only if the interface it implements is compiled in DISABLED mode
 
 // MODULE: libdisable
 // JVM_DEFAULT_MODE: disable

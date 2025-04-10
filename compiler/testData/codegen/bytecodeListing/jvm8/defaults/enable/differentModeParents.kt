@@ -1,5 +1,8 @@
 // WITH_STDLIB
-// Check that methods are generated if class is compiled in "enable" mode, regardless of jvmDefaultMode for implemented interfaces
+
+// Check that methods are generated if module with class is compiled in ENABLE mode
+// for all jvmDefaultModes for implemented interfaces
+
 
 // MODULE: libdisable
 // JVM_DEFAULT_MODE: disable
