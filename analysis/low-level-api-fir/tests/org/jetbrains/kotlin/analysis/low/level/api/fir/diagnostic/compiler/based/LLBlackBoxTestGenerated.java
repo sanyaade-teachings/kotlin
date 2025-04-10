@@ -29297,24 +29297,6 @@ public class LLBlackBoxTestGenerated extends AbstractLLBlackBoxTest {
     }
 
     @Test
-    @TestMetadata("substitutedTypeParameterArray.kt")
-    public void testSubstitutedTypeParameterArray() {
-      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameterArray.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithUniversal());
-    }
-
-    @Test
-    @TestMetadata("substitutedTypeParameterNullableWrapper.kt")
-    public void testSubstitutedTypeParameterNullableWrapper() {
-      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameterNullableWrapper.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithUniversal());
-    }
-
-    @Test
-    @TestMetadata("substitutedTypeParameterWrapper.kt")
-    public void testSubstitutedTypeParameterWrapper() {
-      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameterWrapper.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithUniversal());
-    }
-
-    @Test
     @TestMetadata("toStringCallingPrivateFun.kt")
     public void testToStringCallingPrivateFun() {
       runTest("compiler/testData/codegen/box/inlineClasses/toStringCallingPrivateFun.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithUniversal());

@@ -2,6 +2,7 @@
 // WITH_STDLIB
 // WORKS_WHEN_VALUE_CLASS
 // LANGUAGE: +ValueClasses
+// WITH_SIGNATURES
 
 class Wrapper<T>(val value: T)
 

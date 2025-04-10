@@ -29178,24 +29178,6 @@ public class JvmAbiConsistencyTestBoxGenerated extends AbstractJvmAbiConsistency
     }
 
     @Test
-    @TestMetadata("substitutedTypeParameterArray.kt")
-    public void testSubstitutedTypeParameterArray() {
-      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameterArray.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithReal());
-    }
-
-    @Test
-    @TestMetadata("substitutedTypeParameterNullableWrapper.kt")
-    public void testSubstitutedTypeParameterNullableWrapper() {
-      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameterNullableWrapper.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithReal());
-    }
-
-    @Test
-    @TestMetadata("substitutedTypeParameterWrapper.kt")
-    public void testSubstitutedTypeParameterWrapper() {
-      runTest("compiler/testData/codegen/box/inlineClasses/substitutedTypeParameterWrapper.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithReal());
-    }
-
-    @Test
     @TestMetadata("toStringCallingPrivateFun.kt")
     public void testToStringCallingPrivateFun() {
       runTest("compiler/testData/codegen/box/inlineClasses/toStringCallingPrivateFun.kt", TransformersFunctions.getReplaceOptionalJvmInlineAnnotationWithReal());

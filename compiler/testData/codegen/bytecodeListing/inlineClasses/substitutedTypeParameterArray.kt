@@ -2,6 +2,7 @@
 // WITH_STDLIB
 // WORKS_WHEN_VALUE_CLASS
 // LANGUAGE: +ValueClasses
+// WITH_SIGNATURES
 
 OPTIONAL_JVM_INLINE_ANNOTATION
 value class WithArray<T : Any>(val x: Array<T>)
